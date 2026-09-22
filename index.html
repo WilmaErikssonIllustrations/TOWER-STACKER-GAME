@@ -4,13 +4,39 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Tower Stacker Game</title>
-    <link rel="stylesheet" href="/style.css" />
+    <link rel="stylesheet" href="css/style.css" />
   </head>
   <body>
-    <div id="game-container">
-      <div id="score-display">Poäng: 0</div>
-      <div id="tower"></div>
-    </div>
+    <main>
+      <section>
+        <div id="general-icons">
+          <div id="instructions">?</div>
+          <div id="information">i</div>
+        </div>
+      </section>
+      <section>
+        <div id="game-container">
+          <div id="game-sum-container">
+            <div id="score-container">
+              <span id="score-value">0</span>
+              <svg
+                class="score-icon"
+                viewBox="-2 -2 36 36"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M31.547 12.067a2.003 2.003 0 0 0-1.664-1.372l-9.352-1.358-4.185-8.475a2.003 2.003 0 0 0-3.592 0l-4.185 8.475-9.352 1.358a2.004 2.004 0 0 0-1.11 3.414l6.766 6.594-1.596 9.311a2.001 2.001 0 0 0 2.903 2.115l8.356-4.392 8.356 4.392a2.001 2.001 0 0 0 2.903-2.115l-1.596-9.311 6.766-6.594a2.002 2.002 0 0 0 .506-1.777z"
+                />
+              </svg>
+            </div>
+            <div id="timer-container">
+              <span id="timer-value">0s</span>
+            </div>
+          </div>
+          <div id="tower"></div>
+        </div>
+      </section>
+    </main>
     <script type="module" src="main.js"></script>
   </body>
 </html>

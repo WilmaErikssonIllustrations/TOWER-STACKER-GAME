@@ -1,0 +1,13 @@
+@media (min-width: 600px) {
+  :root {
+    --game-width: 400px;
+    --game-height: 400px;
+    --header-margin: 2rem;
+  }
+}
+
+@media (max-height: 800px) {
+  :root {
+    --header-margin: 0.25rem;
+  }
+}
