@@ -12,6 +12,9 @@ import {
 
 const tower = document.getElementById("tower");
 const scoreDisplay = document.getElementById("score-value");
+const gameModal = document.getElementById("game-modal");
+const modalTitle = document.getElementById("modal-title");
+const modalMessage = document.getElementById("modal-message");
 
 let currentBlock = null;
 let blocks = [];
@@ -23,6 +26,7 @@ let animationFrameId;
 export function startGame() {
   tower.innerHTML = "";
   blocks = [];
+  gameModal.classList.add("hidden");
 
   const gameWidth = tower.clientWidth;
   const initialBlockWidth = Math.min(
@@ -132,6 +136,8 @@ export function placeBlock() {
       if (currentBlock && currentBlock.parentNode) {
         currentBlock.remove();
       }
+      showModal("Grattis!", `Du nådde toppen och fick ${score} poäng!`, "win");
+
       return;
     }
 
@@ -148,4 +154,21 @@ function gameOver() {
   currentBlock.style.transition = "transform 1s ease-in, opacity 1s ease-in";
   currentBlock.style.transform = `translateY(${GAME_OVER_FALL_DISTANCE}px)`;
   currentBlock.style.opacity = "0";
+
+  setTimeout(() => {
+    showModal("Game Over", `Du fick ${score} poäng.`, "game-over");
+  }, GAME_OVER_DELAY);
+}
+
+function showModal(title, message, type) {
+  if (modalTitle) modalTitle.textContent = title;
+  if (modalMessage) modalMessage.textContent = message;
+
+  if (type === "game-over") {
+    gameModal.classList.add("game-over");
+  } else {
+    gameModal.classList.remove("game-over");
+  }
+
+  gameModal.classList.remove("hidden");
 }
