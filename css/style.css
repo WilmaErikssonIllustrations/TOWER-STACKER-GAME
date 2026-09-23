@@ -32,6 +32,12 @@ main {
 
 #information,
 #instructions {
+  font: inherit;
+  color: var(--text-color);
+  font-family: var(--font-game);
+  font-size: var(--font-size-lg);
+  box-sizing: content-box;
+  cursor: pointer;
   height: 2rem;
   width: 4rem;
   text-align: center;

@@ -1,14 +1,12 @@
 import { startGame, placeBlock } from "./game.js";
 
-const restartBtn = document.getElementById("restart-btn");
+const startBtn = document.getElementById("start-btn");
 
 document.addEventListener("click", (e) => {
-  if (e.target === restartBtn) return;
+  if (e.target === startBtn) return;
   placeBlock();
 });
 
-if (restartBtn) {
-  restartBtn.addEventListener("click", startGame);
+if (startBtn) {
+  startBtn.addEventListener("click", startGame);
 }
-
-window.addEventListener("load", startGame);

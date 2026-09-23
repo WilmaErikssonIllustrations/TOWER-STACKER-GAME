@@ -10,6 +10,8 @@ import {
   SPAWN_TOP_POSITION,
 } from "./constants.js";
 
+import { startTimer, stopTimer, getTimeSpentFormatted } from "./timer.js";
+
 const tower = document.getElementById("tower");
 const scoreDisplay = document.getElementById("score-value");
 const gameModal = document.getElementById("game-modal");
@@ -50,6 +52,7 @@ export function startGame() {
   blockSpeed = INITIAL_BLOCK_SPEED;
   updateScoreDisplay();
 
+  startTimer(() => gameOver("time-out"));
   animate();
 }
 
@@ -133,10 +136,16 @@ export function placeBlock() {
     if (newBottom >= maxHeight) {
       gameIsRunning = false;
       cancelAnimationFrame(animationFrameId);
+      stopTimer();
       if (currentBlock && currentBlock.parentNode) {
         currentBlock.remove();
       }
-      showModal("Grattis!", `Du nådde toppen och fick ${score} poäng!`, "win");
+      const timeSpent = getTimeSpentFormatted();
+      showModal(
+        "Grattis!",
+        `Du nådde toppen och fick ${score} poäng på ${timeSpent}!`,
+        "win",
+      );
 
       return;
     }
@@ -147,22 +156,43 @@ export function placeBlock() {
   }
 }
 
-function gameOver() {
+function gameOver(reason) {
   gameIsRunning = false;
   cancelAnimationFrame(animationFrameId);
+  stopTimer();
 
-  currentBlock.style.transition = "transform 1s ease-in, opacity 1s ease-in";
-  currentBlock.style.transform = `translateY(${GAME_OVER_FALL_DISTANCE}px)`;
-  currentBlock.style.opacity = "0";
+  if (reason === "time-out") {
+    showModal(
+      "Tiden är slut!",
+      `Tiden tog slut! Du hann få ${score} poäng.`,
+      "game-over",
+    );
+  } else {
+    currentBlock.style.transition = "transform 1s ease-in, opacity 1s ease-in";
+    currentBlock.style.transform = `translateY(${GAME_OVER_FALL_DISTANCE}px)`;
+    currentBlock.style.opacity = "0";
 
-  setTimeout(() => {
-    showModal("Game Over", `Du fick ${score} poäng.`, "game-over");
-  }, GAME_OVER_DELAY);
+    setTimeout(() => {
+      showModal(
+        "Game Over",
+        `Du fick ${score} poäng på ${getTimeSpentFormatted()}.`,
+        "game-over",
+      );
+    }, GAME_OVER_DELAY);
+  }
 }
 
 function showModal(title, message, type) {
   if (modalTitle) modalTitle.textContent = title;
   if (modalMessage) modalMessage.textContent = message;
+
+  const modalBtn = document.querySelector("#modal-content button");
+  if (modalBtn) {
+    if (type === "game-over" || type === "win") {
+      modalBtn.id = "start-btn";
+      modalBtn.textContent = "Spela igen";
+    }
+  }
 
   if (type === "game-over") {
     gameModal.classList.add("game-over");
