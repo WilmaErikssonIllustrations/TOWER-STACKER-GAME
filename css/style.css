@@ -189,3 +189,7 @@ main {
 #modal-content button:hover {
   transform: scale(1.05);
 }
+
+#modal-message {
+  white-space: pre-line;
+}

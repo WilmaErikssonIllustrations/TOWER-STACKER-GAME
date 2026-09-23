@@ -11,12 +11,10 @@ import {
 } from "./constants.js";
 
 import { startTimer, stopTimer, getTimeSpentFormatted } from "./timer.js";
+import { showModal, hideModal } from "./ui.js";
 
 const tower = document.getElementById("tower");
 const scoreDisplay = document.getElementById("score-value");
-const gameModal = document.getElementById("game-modal");
-const modalTitle = document.getElementById("modal-title");
-const modalMessage = document.getElementById("modal-message");
 
 let currentBlock = null;
 let blocks = [];
@@ -28,7 +26,7 @@ let animationFrameId;
 export function startGame() {
   tower.innerHTML = "";
   blocks = [];
-  gameModal.classList.add("hidden");
+  hideModal();
 
   const gameWidth = tower.clientWidth;
   const initialBlockWidth = Math.min(
@@ -54,6 +52,12 @@ export function startGame() {
 
   startTimer(() => gameOver("time-out"));
   animate();
+}
+
+export function pauseGame() {
+  gameIsRunning = false;
+  cancelAnimationFrame(animationFrameId);
+  stopTimer();
 }
 
 function spawnBlock() {
@@ -180,25 +184,4 @@ function gameOver(reason) {
       );
     }, GAME_OVER_DELAY);
   }
-}
-
-function showModal(title, message, type) {
-  if (modalTitle) modalTitle.textContent = title;
-  if (modalMessage) modalMessage.textContent = message;
-
-  const modalBtn = document.querySelector("#modal-content button");
-  if (modalBtn) {
-    if (type === "game-over" || type === "win") {
-      modalBtn.id = "start-btn";
-      modalBtn.textContent = "Spela igen";
-    }
-  }
-
-  if (type === "game-over") {
-    gameModal.classList.add("game-over");
-  } else {
-    gameModal.classList.remove("game-over");
-  }
-
-  gameModal.classList.remove("hidden");
 }
