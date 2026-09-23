@@ -4,10 +4,13 @@
     --game-height: 400px;
     --header-margin: 2rem;
   }
+  #modal-content {
+    width: 50%;
+  }
 }
 
 @media (max-height: 800px) {
   :root {
-    --header-margin: 0.25rem;
+    --header-margin: 1rem;
   }
 }

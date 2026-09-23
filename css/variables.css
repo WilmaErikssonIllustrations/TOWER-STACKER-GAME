@@ -1,22 +1,34 @@
 :root {
+  /* Grundläggande färger */
   --bg-color: #121212;
   --container-bg: #1e1e1e;
   --border-color: #444444;
   --text-color: #ffffff;
 
+  /* Komponent- och UI-färger */
+  --sum-container-bg: rgba(255, 255, 255, 0.05);
+  --score-icon-color: gold;
+  --shadow-color: rgba(0, 0, 0, 0.5);
+  --modal-backdrop-bg: rgba(0, 0, 0, 0.75);
+  --modal-shadow-color: rgba(0, 0, 0, 0.8);
+
+  /* Block-färger */
+  --block-color: #121212;
+  --block-border: #1e1e1e;
+  --base-block-color: #444444;
+  --base-block-border: #1e1e1e;
+
+  /* Typografi */
   --font-main: "Inter", sans-serif;
   --font-game: "Orbitron", sans-serif;
   --font-size-sm: 0.875rem;
   --font-size-base: 1rem;
   --font-size-lg: 1.5rem;
   --font-size-xl: 2.5rem;
-  --block-color: #abc6d8;
-  --block-border: #c6d8e4;
-  --base-block-color: #f68d56;
-  --base-block-border: #d9692f;
 
+  /* Layout-mått */
   --block-height: 30px;
   --game-width: 80vw;
   --game-height: 80vh;
-  --header-margin: 1rem;
+  --header-margin: 2rem;
 }
