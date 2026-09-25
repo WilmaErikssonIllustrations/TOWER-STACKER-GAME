@@ -1,4 +1,5 @@
 export const BLOCK_HEIGHT = 30;
+export const SQUARE_BLOCK_SIZE = 60;
 export const INITIAL_BLOCK_WIDTH = 200;
 export const INITIAL_BLOCK_SPEED = 3;
 export const SPEED_INCREMENT = 0.2;

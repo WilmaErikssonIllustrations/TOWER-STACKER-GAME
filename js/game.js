@@ -1,5 +1,6 @@
 import {
   BLOCK_HEIGHT,
+  SQUARE_BLOCK_SIZE,
   INITIAL_BLOCK_WIDTH,
   INITIAL_BLOCK_SPEED,
   SPEED_INCREMENT,
@@ -8,6 +9,7 @@ import {
   GAME_OVER_DELAY,
   CONTAINER_PADDING,
   SPAWN_TOP_POSITION,
+  LOGOS,
 } from "./constants.js";
 
 import { startTimer, stopTimer, getTimeSpentFormatted } from "./timer.js";
@@ -22,6 +24,17 @@ let gameIsRunning = true;
 let score = 0;
 let blockSpeed = INITIAL_BLOCK_SPEED;
 let animationFrameId;
+
+function getRandomLogo() {
+  return LOGOS[Math.floor(Math.random() * LOGOS.length)];
+}
+
+function getTowerHeight() {
+  return blocks.reduce((totalHeight, block) => {
+    const height = parseInt(block.style.height, 10) || BLOCK_HEIGHT;
+    return totalHeight + height;
+  }, 0);
+}
 
 export function startGame() {
   tower.innerHTML = "";
@@ -38,6 +51,7 @@ export function startGame() {
   baseBlock.id = "base-block";
   baseBlock.classList.add("block");
   baseBlock.style.width = `${initialBlockWidth}px`;
+  baseBlock.style.height = `${BLOCK_HEIGHT}px`;
   baseBlock.style.left = `${(gameWidth - initialBlockWidth) / 2}px`;
   baseBlock.style.bottom = "0px";
 
@@ -64,11 +78,10 @@ function spawnBlock() {
   currentBlock = document.createElement("div");
   currentBlock.classList.add("block");
 
-  const previousBlockWidth = parseInt(
-    blocks[blocks.length - 1].style.width,
-    10,
-  );
-  currentBlock.style.width = `${previousBlockWidth}px`;
+  currentBlock.style.width = `${SQUARE_BLOCK_SIZE}px`;
+  currentBlock.style.height = `${SQUARE_BLOCK_SIZE}px`;
+
+  currentBlock.style.backgroundImage = `url('${getRandomLogo()}')`;
 
   currentBlock.style.top = SPAWN_TOP_POSITION;
   currentBlock.style.bottom = "";
@@ -123,11 +136,8 @@ export function placeBlock() {
   const overlapWidth = overlapEnd - overlapStart;
 
   if (overlapWidth > 0) {
-    currentBlock.style.width = `${overlapWidth}px`;
-    currentBlock.style.left = `${overlapStart}px`;
-
     currentBlock.style.top = "";
-    const newBottom = blocks.length * BLOCK_HEIGHT;
+    const newBottom = getTowerHeight();
     currentBlock.style.bottom = `${newBottom}px`;
 
     score++;
@@ -137,7 +147,8 @@ export function placeBlock() {
     blocks.push(currentBlock);
 
     const maxHeight = tower.clientHeight - TOP_MARGIN;
-    if (newBottom >= maxHeight) {
+    const currentBlockTop = newBottom + SQUARE_BLOCK_SIZE;
+    if (currentBlockTop >= maxHeight) {
       gameIsRunning = false;
       cancelAnimationFrame(animationFrameId);
       stopTimer();
