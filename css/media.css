@@ -1,7 +1,7 @@
 @media (min-width: 600px) {
   :root {
     --game-width: 400px;
-    --game-height: 400px;
+    --game-height: 600px;
     --header-margin: 2rem;
   }
   #modal-content {

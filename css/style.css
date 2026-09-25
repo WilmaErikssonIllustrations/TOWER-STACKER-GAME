@@ -111,10 +111,15 @@ main {
 
 .block {
   position: absolute;
-  height: var(--block-height);
   background-color: var(--block-color);
-  border: 2px solid var(--block-border);
+  border: 2px solid var(--border-color);
+  border-radius: 6px;
   box-sizing: border-box;
+  background-size: 100px auto;
+  overflow: hidden;
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
 #base-block {
