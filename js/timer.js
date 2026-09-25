@@ -5,7 +5,7 @@ const timerDisplay = document.getElementById("timer-value");
 
 export function startTimer(onTimeOut) {
   stopTimer();
-  timeLeft = 60;
+  timeLeft = 30;
   updateDisplay();
 
   timerInterval = setInterval(() => {
@@ -26,7 +26,7 @@ export function stopTimer() {
 }
 
 export function getTimeSpentFormatted() {
-  const timeSpent = 60 - timeLeft;
+  const timeSpent = 30 - timeLeft;
   return `${timeSpent}s`;
 }
 
