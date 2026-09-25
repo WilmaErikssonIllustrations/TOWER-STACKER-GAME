@@ -21,6 +21,7 @@ const scoreDisplay = document.getElementById("score-value");
 let currentBlock = null;
 let blocks = [];
 let gameIsRunning = true;
+let isDropping = false;
 let score = 0;
 let blockSpeed = INITIAL_BLOCK_SPEED;
 let animationFrameId;
@@ -58,12 +59,13 @@ export function startGame() {
   tower.appendChild(baseBlock);
   blocks.push(baseBlock);
 
-  spawnBlock();
   gameIsRunning = true;
+  isDropping = false;
   score = 0;
   blockSpeed = INITIAL_BLOCK_SPEED;
   updateScoreDisplay();
 
+  spawnBlock();
   startTimer(() => gameOver("time-out"));
   animate();
 }
@@ -96,7 +98,7 @@ function updateScoreDisplay() {
 }
 
 function animate() {
-  if (!gameIsRunning) return;
+  if (!gameIsRunning || isDropping) return;
 
   const gameWidth = tower.clientWidth;
   let currentLeft = parseInt(currentBlock.style.left || 0, 10);
@@ -119,7 +121,7 @@ function animate() {
 }
 
 export function placeBlock() {
-  if (!gameIsRunning) return;
+  if (!gameIsRunning || isDropping) return;
 
   const previousBlock = blocks[blocks.length - 1];
   const previousLeft = parseInt(previousBlock.style.left, 10);
@@ -136,9 +138,17 @@ export function placeBlock() {
   const overlapWidth = overlapEnd - overlapStart;
 
   if (overlapWidth > 0) {
-    currentBlock.style.top = "";
-    const newBottom = getTowerHeight();
-    currentBlock.style.bottom = `${newBottom}px`;
+    isDropping = true;
+    cancelAnimationFrame(animationFrameId);
+
+    const targetBottom = getTowerHeight();
+    const blockToAnimate = currentBlock;
+
+    const fallDuration = 350;
+    blockToAnimate.style.transition = `top ${fallDuration / 1000}s cubic-bezier(0.4, 0, 0.2, 1)`;
+
+    const targetTop = tower.clientHeight - targetBottom - SQUARE_BLOCK_SIZE;
+    blockToAnimate.style.top = `${targetTop}px`;
 
     score++;
     blockSpeed += SPEED_INCREMENT;
@@ -146,26 +156,33 @@ export function placeBlock() {
 
     blocks.push(currentBlock);
 
-    const maxHeight = tower.clientHeight - TOP_MARGIN;
-    const currentBlockTop = newBottom + SQUARE_BLOCK_SIZE;
-    if (currentBlockTop >= maxHeight) {
-      gameIsRunning = false;
-      cancelAnimationFrame(animationFrameId);
-      stopTimer();
-      if (currentBlock && currentBlock.parentNode) {
-        currentBlock.remove();
+    setTimeout(() => {
+      blockToAnimate.style.transition = "";
+      blockToAnimate.style.top = "";
+      blockToAnimate.style.bottom = `${targetBottom}px`;
+
+      const maxHeight = tower.clientHeight - TOP_MARGIN;
+      const currentBlockTop = targetBottom + SQUARE_BLOCK_SIZE;
+
+      if (currentBlockTop >= maxHeight) {
+        gameIsRunning = false;
+        stopTimer();
+        if (currentBlock && currentBlock.parentNode) {
+          currentBlock.remove();
+        }
+        const timeSpent = getTimeSpentFormatted();
+        showModal(
+          "Grattis!",
+          `Du nådde toppen och fick ${score} poäng på ${timeSpent}!`,
+          "win",
+        );
+        return;
       }
-      const timeSpent = getTimeSpentFormatted();
-      showModal(
-        "Grattis!",
-        `Du nådde toppen och fick ${score} poäng på ${timeSpent}!`,
-        "win",
-      );
 
-      return;
-    }
-
-    spawnBlock();
+      isDropping = false;
+      spawnBlock();
+      animate();
+    }, fallDuration);
   } else {
     gameOver();
   }

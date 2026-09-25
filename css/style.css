@@ -104,8 +104,6 @@ main {
   bottom: 0;
   width: 100%;
   height: 100%;
-  display: flex;
-  flex-direction: column-reverse;
   overflow: hidden;
 }
 
@@ -115,11 +113,10 @@ main {
   border: 2px solid var(--border-color);
   border-radius: 6px;
   box-sizing: border-box;
-  background-size: 100px auto;
-  overflow: hidden;
   background-size: contain;
   background-position: center;
   background-repeat: no-repeat;
+  will-change: top, left;
 }
 
 #base-block {
@@ -197,4 +194,24 @@ main {
 
 #modal-message {
   white-space: pre-line;
+}
+
+/* Squash and stretch keyframe for landed blocks */
+.block.landed {
+  animation: blockLandImpact 0.18s ease-out forwards;
+}
+
+@keyframes blockLandImpact {
+  0% {
+    transform: scale(1, 1);
+  }
+  35% {
+    transform: scale(1.08, 0.88); /* Compression on impact */
+  }
+  70% {
+    transform: scale(0.97, 1.03); /* Slight stretch recovery */
+  }
+  100% {
+    transform: scale(1, 1);
+  }
 }
