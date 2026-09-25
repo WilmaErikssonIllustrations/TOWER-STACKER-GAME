@@ -1,4 +1,5 @@
 @import url("https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap");
 @import "variables.css";
 @import "media.css";
 
@@ -11,7 +12,7 @@ body {
   flex-direction: column;
   height: 100vh;
   background-color: var(--bg-color);
-  font-family: var(--font-game);
+  font-family: var(--font-main);
   color: var(--text-color);
   overflow: hidden;
 }
@@ -28,31 +29,6 @@ main {
   width: var(--game-width);
   margin-top: var(--header-margin);
   margin-bottom: var(--header-margin);
-}
-
-#information,
-#instructions {
-  font: inherit;
-  color: var(--text-color);
-  font-family: var(--font-game);
-  font-size: var(--font-size-lg);
-  box-sizing: content-box;
-  cursor: pointer;
-  height: 2rem;
-  width: 4rem;
-  text-align: center;
-  border: 2px solid var(--border-color);
-  padding: 0.25rem;
-  background-color: var(--container-bg);
-}
-
-#information:hover,
-#instructions:hover {
-  background-color: var(--block-color);
-  cursor: pointer;
-  transition:
-    background-color 0.3s ease,
-    transform 0.2s ease;
 }
 
 #game-container {
@@ -85,6 +61,7 @@ main {
 
 #score-container,
 #timer-container {
+  font-family: var(--font-game);
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -159,19 +136,23 @@ main {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: space-between; /* Sprider ut innehållet snyggt i den fasta ytan */
+  justify-content: space-between;
   box-sizing: border-box;
 }
 
 #modal-content h2 {
+  font-family: var(--font-game);
   margin-top: 0;
   font-size: 1.5rem;
   color: var(--text-color);
 }
 
 #modal-content p {
-  margin-bottom: 1.5rem;
-  font-size: 1rem;
+  color: var(--text-color-secondary);
+  font-size: var(--font-size-sm);
+  line-height: 1.2;
+  max-width: 280px;
+  letter-spacing: 0px;
 }
 
 #modal-content button {
@@ -194,24 +175,10 @@ main {
 
 #modal-message {
   white-space: pre-line;
+  margin-top: 1.5rem;
+  margin-bottom: 1rem;
 }
 
-/* Squash and stretch keyframe for landed blocks */
-.block.landed {
-  animation: blockLandImpact 0.18s ease-out forwards;
-}
-
-@keyframes blockLandImpact {
-  0% {
-    transform: scale(1, 1);
-  }
-  35% {
-    transform: scale(1.08, 0.88); /* Compression on impact */
-  }
-  70% {
-    transform: scale(0.97, 1.03); /* Slight stretch recovery */
-  }
-  100% {
-    transform: scale(1, 1);
-  }
+#modal-title {
+  margin: 0;
 }

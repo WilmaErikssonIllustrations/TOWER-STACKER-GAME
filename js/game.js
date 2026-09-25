@@ -70,12 +70,6 @@ export function startGame() {
   animate();
 }
 
-export function pauseGame() {
-  gameIsRunning = false;
-  cancelAnimationFrame(animationFrameId);
-  stopTimer();
-}
-
 function spawnBlock() {
   currentBlock = document.createElement("div");
   currentBlock.classList.add("block");

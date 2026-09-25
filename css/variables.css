@@ -4,6 +4,7 @@
   --container-bg: #1e1e1e;
   --border-color: #444444;
   --text-color: #ffffff;
+  --text-color-secondary: #aeaeae;
 
   /* Komponent- och UI-färger */
   --sum-container-bg: rgba(255, 255, 255, 0.05);

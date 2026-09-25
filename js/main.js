@@ -1,11 +1,10 @@
-import { startGame, placeBlock, pauseGame } from "./game.js";
-import { showInstructionsModal } from "./ui.js";
+import { startGame, placeBlock } from "./game.js";
+import { showInstructions } from "./ui.js";
 
 const startBtn = document.getElementById("start-btn");
-const instructionsBtn = document.getElementById("instructions");
 
 document.addEventListener("click", (e) => {
-  if (e.target === startBtn || e.target === instructionsBtn) return;
+  if (e.target === startBtn) return;
   placeBlock();
 });
 
@@ -16,10 +15,4 @@ if (startBtn) {
   });
 }
 
-if (instructionsBtn) {
-  instructionsBtn.addEventListener("click", (e) => {
-    e.stopPropagation();
-    pauseGame();
-    showInstructionsModal();
-  });
-}
+showInstructions();

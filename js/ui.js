@@ -5,7 +5,7 @@ const startBtn = document.getElementById("start-btn");
 
 export function showModal(title, message, type = "default") {
   if (modalTitle) modalTitle.textContent = title;
-  if (modalMessage) modalMessage.textContent = message;
+  if (modalMessage) modalMessage.innerHTML = message;
 
   if (startBtn) {
     if (type === "game-over" || type === "win") {
@@ -28,10 +28,10 @@ export function hideModal() {
   if (gameModal) gameModal.classList.add("hidden");
 }
 
-export function showInstructionsModal() {
+export function showInstructions() {
   showModal(
-    "Hur man spelar",
-    "🖰: släpp blocket \n \n Försök att träffa det nedre blocket och bygg tornet till toppen innan tiden tar slut!",
-    "info",
+    "Tower Stacker",
+    "Vänsterklicka eller tryck på mellanslag för att släppa blocket. Bygg ett så högt torn som möjligt innan tiden tar slut!",
+    "instructions",
   );
 }
