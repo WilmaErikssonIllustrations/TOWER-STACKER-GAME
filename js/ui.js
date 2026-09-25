@@ -31,7 +31,7 @@ export function hideModal() {
 export function showInstructions() {
   showModal(
     "Tower Stacker",
-    "Vänsterklicka eller tryck på mellanslag för att släppa blocket. Bygg ett så högt torn som möjligt innan tiden tar slut!",
+    "Vänsterklicka för att släppa blocket. Bygg ett så högt torn som möjligt innan tiden tar slut!",
     "instructions",
   );
 }

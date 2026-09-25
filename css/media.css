@@ -1,16 +1,6 @@
 @media (min-width: 600px) {
   :root {
-    --game-width: 400px;
-    --game-height: 600px;
-    --header-margin: 2rem;
-  }
-  #modal-content {
-    width: 50%;
-  }
-}
-
-@media (max-height: 800px) {
-  :root {
-    --header-margin: 1rem;
+    --game-width: 500px;
+    --game-height: 90vh;
   }
 }

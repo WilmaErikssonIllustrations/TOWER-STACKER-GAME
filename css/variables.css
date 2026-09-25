@@ -4,10 +4,12 @@
   --container-bg: #1e1e1e;
   --border-color: #444444;
   --text-color: #ffffff;
-  --text-color-secondary: #aeaeae;
+  --text-color-secondary: #969696;
 
   /* Komponent- och UI-färger */
   --sum-container-bg: rgba(255, 255, 255, 0.05);
+  --score-bg-color: #444444;
+  --timer-bg-color: #969696;
   --score-icon-color: gold;
   --shadow-color: rgba(0, 0, 0, 0.5);
   --modal-backdrop-bg: rgba(0, 0, 0, 0.75);
@@ -20,7 +22,7 @@
   --base-block-border: #1e1e1e;
 
   /* Typografi */
-  --font-main: "Inter", sans-serif;
+  --font-main: "Inter", system-ui, -apple-system, sans-serif;
   --font-game: "Orbitron", sans-serif;
   --font-size-sm: 0.875rem;
   --font-size-base: 1rem;
@@ -28,7 +30,8 @@
   --font-size-xl: 2.5rem;
 
   /* Layout-mått */
-  --game-width: 80vw;
-  --game-height: 80vh;
+  --game-width: 90vw;
+  --game-height: 90vh;
   --header-margin: 2rem;
+  --modal-width: 80%;
 }

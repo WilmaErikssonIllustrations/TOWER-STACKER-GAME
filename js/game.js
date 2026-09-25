@@ -25,9 +25,13 @@ let isDropping = false;
 let score = 0;
 let blockSpeed = INITIAL_BLOCK_SPEED;
 let animationFrameId;
+let remainingLogos = [];
 
 function getRandomLogo() {
-  return LOGOS[Math.floor(Math.random() * LOGOS.length)];
+  if (remainingLogos.length === 0) {
+    remainingLogos = [...LOGOS].sort(() => Math.random() - 0.5);
+  }
+  return remainingLogos.pop();
 }
 
 function getTowerHeight() {
@@ -41,6 +45,8 @@ export function startGame() {
   tower.innerHTML = "";
   blocks = [];
   hideModal();
+
+  remainingLogos = [...LOGOS].sort(() => Math.random() - 0.5);
 
   const gameWidth = tower.clientWidth;
   const initialBlockWidth = Math.min(
@@ -76,7 +82,6 @@ function spawnBlock() {
 
   currentBlock.style.width = `${SQUARE_BLOCK_SIZE}px`;
   currentBlock.style.height = `${SQUARE_BLOCK_SIZE}px`;
-
   currentBlock.style.backgroundImage = `url('${getRandomLogo()}')`;
 
   currentBlock.style.top = SPAWN_TOP_POSITION;
@@ -137,17 +142,14 @@ export function placeBlock() {
 
     const targetBottom = getTowerHeight();
     const blockToAnimate = currentBlock;
-
     const fallDuration = 350;
     blockToAnimate.style.transition = `top ${fallDuration / 1000}s cubic-bezier(0.4, 0, 0.2, 1)`;
-
     const targetTop = tower.clientHeight - targetBottom - SQUARE_BLOCK_SIZE;
     blockToAnimate.style.top = `${targetTop}px`;
 
     score++;
     blockSpeed += SPEED_INCREMENT;
     updateScoreDisplay();
-
     blocks.push(currentBlock);
 
     setTimeout(() => {
