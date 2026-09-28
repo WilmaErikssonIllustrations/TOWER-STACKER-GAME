@@ -1,7 +1,43 @@
 @import url("https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap");
-@import "variables.css";
-@import "media.css";
+
+:root {
+  /* Grundläggande färger */
+  --bg-color: #121212;
+  --container-bg: #1e1e1e;
+  --border-color: #444444;
+  --text-color: #ffffff;
+  --text-color-secondary: #969696;
+
+  /* Komponent- och UI-färger */
+  --sum-container-bg: rgba(255, 255, 255, 0.05);
+  --score-bg-color: #444444;
+  --timer-bg-color: #969696;
+  --score-icon-color: gold;
+  --shadow-color: rgba(0, 0, 0, 0.5);
+  --modal-backdrop-bg: rgba(0, 0, 0, 0.75);
+  --modal-shadow-color: rgba(0, 0, 0, 0.8);
+
+  /* Block-färger */
+  --block-color: #121212;
+  --block-border: #1e1e1e;
+  --base-block-color: #444444;
+  --base-block-border: #1e1e1e;
+
+  /* Typografi */
+  --font-main: "Inter", system-ui, -apple-system, sans-serif;
+  --font-game: "Orbitron", sans-serif;
+  --font-size-sm: 0.875rem;
+  --font-size-base: 1rem;
+  --font-size-lg: 1.5rem;
+  --font-size-xl: 2.5rem;
+
+  /* Layout-mått */
+  --game-width: 90vw;
+  --game-height: 90vh;
+  --header-margin: 2rem;
+  --modal-width: 80%;
+}
 
 *,
 *::before,
@@ -193,4 +229,11 @@ main {
 
 #modal-title {
   margin: 0;
+}
+
+@media (min-width: 600px) {
+  :root {
+    --game-width: 500px;
+    --game-height: 90vh;
+  }
 }
