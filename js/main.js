@@ -64,7 +64,7 @@ function getTimeSpentFormatted() {
 
 function updateTimerDisplay() {
   if (timerDisplay) {
-    timerDisplay.textContent = `${timeLeft}s`;
+    timerDisplay.innerHTML = `${timeLeft}s`;
   }
 }
 
@@ -77,14 +77,15 @@ const modalMessage = document.getElementById("modal-message");
 const startBtn = document.getElementById("start-btn");
 
 function showModal(title, message, type = "default") {
-  if (modalTitle) modalTitle.textContent = title;
+  if (modalTitle) modalTitle.innerHTML = title;
+
   if (modalMessage) modalMessage.innerHTML = message;
 
   if (startBtn) {
     if (type === "game-over" || type === "win") {
-      startBtn.textContent = "Spela igen";
+      startBtn.innerHTML = "Spela igen";
     } else {
-      startBtn.textContent = "Starta spelet";
+      startBtn.innerHTMLt = "Starta spelet";
     }
   }
 
@@ -107,6 +108,31 @@ function showInstructions() {
     "Vänsterklicka för att släppa blocket. Bygg ett så högt torn som möjligt innan tiden tar slut!",
     "instructions",
   );
+}
+function createStatsHtml(score, timeSpent) {
+  return `
+
+<div class="modal-stats">
+
+      <div class="stat-item">
+
+        <span class="stat-label">Poäng</span>
+
+        <span class="stat-value">${score}p</span>
+
+      </div>
+
+      <div class="stat-item">
+
+        <span class="stat-label">Tid</span>
+
+        <span class="stat-value">${timeSpent}</span>
+
+      </div>
+
+    </div>
+
+  `;
 }
 
 // ==========================================
@@ -190,7 +216,7 @@ function spawnBlock() {
 }
 
 function updateScoreDisplay() {
-  if (scoreDisplay) scoreDisplay.textContent = score;
+  if (scoreDisplay) scoreDisplay.innerHTML = score;
 }
 
 function animate() {
@@ -265,8 +291,10 @@ function placeBlock() {
         }
         const timeSpent = getTimeSpentFormatted();
         showModal(
-          "Grattis!",
-          `Du nådde toppen och fick ${score} poäng på ${timeSpent}!`,
+          "<span>🥇</span>Du nådde toppen!<span>🥇</span>",
+
+          createStatsHtml(score, timeSpent),
+
           "win",
         );
         return;
@@ -285,11 +313,13 @@ function gameOver(reason) {
   gameIsRunning = false;
   cancelAnimationFrame(animationFrameId);
   stopTimer();
-
+  const timeSpent = getTimeSpentFormatted();
   if (reason === "time-out") {
     showModal(
       "Tiden är slut!",
-      `Tiden tog slut! Du hann få ${score} poäng.`,
+
+      createStatsHtml(score, timeSpent),
+
       "game-over",
     );
   } else {
@@ -299,26 +329,26 @@ function gameOver(reason) {
 
     setTimeout(() => {
       showModal(
-        "Game Over",
-        `Du fick ${score} poäng på ${getTimeSpentFormatted()}.`,
+        "<span>💥</span>Game Over<span>💥</span>",
+        createStatsHtml(score, timeSpent),
         "game-over",
       );
     }, GAME_OVER_DELAY);
   }
 }
 
-// Globala händelselyssnare och initialisering
 document.addEventListener("click", (e) => {
   if (e.target === startBtn) return;
+
   placeBlock();
 });
 
 if (startBtn) {
   startBtn.addEventListener("click", (e) => {
     e.stopPropagation();
+
     startGame();
   });
 }
 
-// Visa instruktioner direkt när filen laddas
 showInstructions();
