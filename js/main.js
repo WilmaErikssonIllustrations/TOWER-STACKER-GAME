@@ -13,7 +13,8 @@ const GAME_OVER_FALL_DISTANCE = 200;
 const GAME_OVER_DELAY = 1200;
 const CONTAINER_PADDING = 20;
 const SPAWN_TOP_POSITION = "10px";
-const TRUMP_BLOCK_CHANCE = 0.1;
+const TRUMP_BLOCK_CHANCE = 0.3;
+const INITIAL_LIVES = 3;
 
 // ==========================================
 // 2. TIMER STATE & FUNCTIONS
@@ -62,6 +63,15 @@ const gameModal = document.getElementById("game-modal");
 const modalTitle = document.getElementById("modal-title");
 const modalMessage = document.getElementById("modal-message");
 const startBtn = document.getElementById("start-btn");
+const livesDisplay = document.getElementById("lives-value");
+
+let lives = INITIAL_LIVES;
+
+function updateLivesDisplay() {
+  if (livesDisplay) {
+    livesDisplay.innerHTML = "❤️".repeat(lives);
+  }
+}
 
 function showModal(title, message, type = "default") {
   if (modalTitle) modalTitle.innerHTML = title;
@@ -166,9 +176,11 @@ function startGame() {
   gameIsRunning = true;
   isDropping = false;
   score = 0;
+  lives = INITIAL_LIVES;
   blockSpeed = INITIAL_BLOCK_SPEED;
   currentBlockSize = INITIAL_SQUARE_BLOCK_SIZE;
   updateScoreDisplay();
+  updateLivesDisplay();
 
   spawnBlock();
   startTimer(() => gameOver("time-out"));
@@ -192,7 +204,6 @@ function spawnBlock() {
   } else {
     currentBlock.dataset.type = "normal";
     currentBlock.style.backgroundImage = `url('assets/cat-food.png')`;
-
     currentBlock.style.backgroundColor = "";
     currentBlock.style.border = "";
   }
@@ -264,13 +275,26 @@ function placeBlock() {
       if (!gameIsRunning) return;
 
       blockToAnimate.style.transition = "";
-      blockToAnimate.style.top = "";
-      blockToAnimate.style.bottom = `${targetBottom}px`;
 
       if (blockToAnimate.dataset.type === "trump") {
-        gameOver("trump");
+        lives--;
+        updateLivesDisplay();
+
+        blockToAnimate.remove();
+
+        if (lives <= 0) {
+          gameOver("trump");
+          return;
+        }
+
+        isDropping = false;
+        spawnBlock();
+        animate();
         return;
       }
+
+      blockToAnimate.style.top = "";
+      blockToAnimate.style.bottom = `${targetBottom}px`;
 
       score++;
       blockSpeed += SPEED_INCREMENT;
