@@ -7,7 +7,8 @@ const MIN_SQUARE_BLOCK_SIZE = 50;
 const SIZE_DECREMENT = 10;
 const INITIAL_BLOCK_WIDTH = 100;
 const INITIAL_BLOCK_SPEED = 6;
-const SPEED_INCREMENT = 2;
+const MAX_BLOCK_SPEED = 7;
+const SPEED_INCREMENT = 1;
 const TOP_MARGIN = 130;
 const GAME_OVER_FALL_DISTANCE = 200;
 const GAME_OVER_DELAY = 1200;
@@ -297,7 +298,7 @@ function placeBlock() {
       blockToAnimate.style.bottom = `${targetBottom}px`;
 
       score++;
-      blockSpeed += SPEED_INCREMENT;
+      blockSpeed = Math.min(blockSpeed + SPEED_INCREMENT, MAX_BLOCK_SPEED);
 
       currentBlockSize = Math.max(
         MIN_SQUARE_BLOCK_SIZE,

@@ -73,13 +73,13 @@
   --font-size-xs: 0.7rem;
   --font-size-sm: clamp(0.85rem, 3vw, 0.95rem);
   --font-size-base: clamp(0.9rem, 2.5vw, 1rem);
-  --font-size-md: 24px;
+  --font-size-md: clamp(1.1rem, 5vw, 24px);
   --font-size-lg: clamp(1.25rem, 4.5vw, 1.65rem);
   --font-size-xl: clamp(1.4rem, 5vw, 1.75rem);
   /* ==========================================
      6. LAYOUT, DIMENSIONS & SPACING
      ========================================== */
-  --game-width: 90vw;
+  --game-width: 100vw;
   --game-height: 90vh;
   --modal-width: 400px;
   --radius-sm: 8px;
@@ -354,13 +354,15 @@ main {
 /* ==========================================
    RESPONSIVENESS (MEDIA QUERIES)
    ========================================== */
+
 @media (min-width: 600px) {
   :root {
-    --game-width: 480px;
+    --game-width: 80vw;
     --game-height: 85vh;
   }
 }
-@media (min-width: 2500px) {
+
+@media (min-width: 1024px) {
   :root {
     --game-width: 700px;
   }
