@@ -2,104 +2,104 @@
    TABLE OF CONTENTS & EXTERNAL FONTS
    ========================================== */
 @import url("https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Orbitron:wght@400;700;900&display=swap");
+
 :root {
   -webkit-locale: "sv";
+
   /* ==========================================
-     1. COLOR PALETTE
+     1. COLOR PALETTE (Ändra spelets färger här)
      ========================================== */
-  --brand-primary: #7c3aed;
-  --brand-primary-light: #8b5cf6;
-  --brand-primary-lighter: #9333ea;
-  --brand-primary-alt: #a855f7;
-  --brand-primary-dark: #6d28d9;
-  --brand-accent: #f59e0b;
-  --bg-color: #ddd;
-  --container-bg: #ffffff;
-  --border-color: #cbd5e1;
-  --text-color: #0f172a;
-  --text-color-secondary: #64748b;
-  --sum-container-bg: #f8fafc;
-  --modal-backdrop-bg: rgba(15, 23, 42, 0.4);
-  --block-color: #e8e8e8;
-  --block-border: rgba(15, 23, 42, 0.4);
-  --base-block-color: #7c3aed;
-  --base-block-border: #6d28d9;
+  --color-primary: #7c3aed; /* Huvudfärg (lila) */
+  --color-primary-hover: #8b5cf6; /* Ljusare lila vid hover */
+  --color-primary-dark: #6d28d9; /* Mörkare lila (aktiv/bas) */
+  --color-accent: #f59e0b; /* Accentfärg (t.ex. poäng-ikon) */
+
+  --color-bg: #ddd; /* Bakgrund bakom spelet */
+  --color-container-bg: #ffffff; /* Vit bakgrund i kort/containrar */
+  --color-border: #cbd5e1; /* Standard kantlinje */
+
+  --color-text: #0f172a; /* Huvudtext */
+  --color-text-muted: #64748b; /* Sekundär/avstämnd text */
+
+  --color-sum-bg: #f8fafc; /* Ljus bakgrund för header/stats */
+  --color-backdrop: rgba(15, 23, 42, 0.4); /* Svarttonad bakgrund vid modal */
+
+  --color-block: #e8e8e8; /* Standardblock */
+  --color-block-border: rgba(15, 23, 42, 0.4);
+
   /* ==========================================
-     2. RGB & OPACITIES (for shadows/borders)
+     2. SHADOWS (Design tokens för djup)
      ========================================== */
-  --rgb-slate: 15, 23, 42;
-  --rgb-white: 255, 255, 255;
-  --rgb-black: 0, 0, 0;
-  --opacity-subtle-border: 0.2;
-  /* ==========================================
-     3. SHADOWS (DESIGN TOKENS)
-     ========================================== */
-  --shadow-container-inset: inset 0 4px 16px rgba(var(--rgb-slate), 0.05);
-  --shadow-block-inset: inset 0 2px 4px rgba(var(--rgb-slate), 0.06);
-  --shadow-base-inset: inset 0 2px 6px rgba(var(--rgb-white), 0.2);
-  --shadow-modal: inset 0 4px 24px rgba(var(--rgb-slate), 0.04);
-  --shadow-stat: inset 0 1px 3px rgba(var(--rgb-slate), 0.02);
+  --shadow-container: inset 0 4px 16px rgba(15, 23, 42, 0.05);
+  --shadow-block: inset 0 2px 4px rgba(15, 23, 42, 0.06);
+  --shadow-base: inset 0 2px 6px rgba(255, 255, 255, 0.2);
+  --shadow-modal: inset 0 4px 24px rgba(15, 23, 42, 0.04);
+  --shadow-stat: inset 0 1px 3px rgba(15, 23, 42, 0.02);
+
   --shadow-btn:
-    inset 0 1px 1px rgba(var(--rgb-white), 0.4),
-    inset 0 -2px 4px rgba(var(--rgb-black), 0.25);
+    inset 0 1px 1px rgba(255, 255, 255, 0.4),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.25);
   --shadow-btn-hover:
-    inset 0 1px 2px rgba(var(--rgb-white), 0.5),
-    inset 0 -3px 6px rgba(var(--rgb-black), 0.3);
-  --shadow-btn-active: inset 0 3px 6px rgba(var(--rgb-black), 0.4);
+    inset 0 1px 2px rgba(255, 255, 255, 0.5),
+    inset 0 -3px 6px rgba(0, 0, 0, 0.3);
+  --shadow-btn-active: inset 0 3px 6px rgba(0, 0, 0, 0.4);
+
   /* ==========================================
-     4. GRADIENTS
+     3. GRADIENTS
      ========================================== */
   --gradient-btn: linear-gradient(
     180deg,
-    var(--brand-primary-light),
-    var(--brand-primary)
+    var(--color-primary-hover),
+    var(--color-primary)
   );
   --gradient-btn-hover: linear-gradient(
     180deg,
-    var(--brand-primary-lighter),
-    var(--brand-primary-light)
+    #9333ea,
+    var(--color-primary-hover)
   );
   --gradient-btn-active: linear-gradient(
     180deg,
-    var(--brand-primary-dark),
-    var(--brand-primary)
+    var(--color-primary-dark),
+    var(--color-primary)
   );
+
   /* ==========================================
-     5. TYPOGRAPHY & FONT SIZES
+     4. TYPOGRAPHY
      ========================================== */
   --font-main:
     -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", sans-serif;
   --font-game: "Orbitron", sans-serif;
+
   --font-size-xs: 0.7rem;
   --font-size-sm: clamp(0.85rem, 3vw, 0.95rem);
   --font-size-base: clamp(0.9rem, 2.5vw, 1rem);
   --font-size-md: clamp(1.1rem, 5vw, 24px);
   --font-size-lg: clamp(1.25rem, 4.5vw, 1.65rem);
   --font-size-xl: clamp(1.4rem, 5vw, 1.75rem);
+
   /* ==========================================
-     6. LAYOUT, DIMENSIONS & SPACING
+     5. LAYOUT, DIMENSIONS & SPACING
      ========================================== */
   --game-width: 100vw;
   --game-height: 90vh;
   --modal-width: 400px;
+
   --radius-sm: 8px;
   --radius-md: 14px;
   --radius-lg: 16px;
   --radius-xl: 20px;
   --radius-pill: 9999px;
   --border-width: 1px;
+
   --spacing-xs: 0.2rem;
   --spacing-sm: 0.25rem;
   --spacing-md: 8px;
   --spacing-lg: 0.85rem;
   --spacing-container: clamp(1.5rem, 5vw, 2.25rem) clamp(1.25rem, 4vw, 2rem);
-  /* ==========================================
-     7. BUTTON SETTINGS
-     ========================================== */
-  --button-padding-y: clamp(0.7rem, 2vw, 0.8rem);
-  --button-padding-x: clamp(1.5rem, 4vw, 2rem);
-  --button-max-width: 190px;
+
+  --padding-container-inner: 1rem; /* Används i containrar för enhetlighet */
 }
+
 /* ==========================================
    GLOBAL RESET & BASE STYLES
    ========================================== */
@@ -108,6 +108,7 @@
 *::after {
   box-sizing: border-box;
 }
+
 body,
 main,
 section {
@@ -115,24 +116,28 @@ section {
   margin: 0;
   padding: 0;
 }
+
 body {
   flex-direction: column;
   justify-content: center;
   align-items: center;
   height: 100vh;
   overflow: hidden;
-  background-color: var(--bg-color);
+  background-color: var(--color-bg);
   font-family: var(--font-main);
-  color: var(--text-color);
+  color: var(--color-text);
 }
+
 main,
 section {
   justify-content: center;
   align-items: center;
 }
+
 main {
   font-size: var(--font-size-md);
 }
+
 /* ==========================================
    GAME CONTAINER & HEADER BAR
    ========================================== */
@@ -144,67 +149,64 @@ main {
   width: var(--game-width);
   height: var(--game-height);
   max-height: 100vh;
-  background-color: var(--container-bg);
-  border: var(--border-width) solid var(--border-color);
+  background-color: var(--color-container-bg);
+  border: var(--border-width) solid var(--color-border);
   border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-container-inset);
+  box-shadow: var(--shadow-container);
   overflow: hidden;
 }
+
 #game-sum-container {
   display: flex;
   justify-content: space-evenly;
   align-items: center;
   width: 100%;
   height: 15%;
-  background-color: var(--sum-container-bg);
-  border-bottom: var(--border-width) solid var(--border-color);
+  background-color: var(--color-sum-bg);
+  border-bottom: var(--border-width) solid var(--color-border);
   font-family: var(--font-game);
   font-weight: 600;
 }
+
 #score-container,
+#lives-container,
 #timer-container {
   display: flex;
   justify-content: center;
   align-items: center;
   width: 100%;
   height: 100%;
-  padding: 0 1rem;
-  gap: var(--spacing-md);
+  padding: 0 var(--padding-container-inner);
+  background-color: var(--color-container-bg);
+  border-right: var(--border-width) solid var(--color-border);
 }
+
 #score-container {
-  background-color: var(--container-bg);
-  border-right: var(--border-width) solid var(--border-color);
-  color: var(--brand-primary);
+  color: var(--color-primary);
 }
 
 #lives-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-  height: 100%;
-  padding: 0 1rem;
-  background-color: var(--container-bg);
-  border-right: var(--border-width) solid var(--border-color);
-  color: var(--text-color);
+  color: var(--color-text);
 }
 
 #lives-value {
   display: inline-flex;
   flex-direction: row;
-  gap: 4px;
+  gap: var(--spacing-sm);
   font-size: 1.1rem;
 }
 
 #timer-container {
-  background-color: var(--container-bg);
-  color: var(--text-color-secondary);
+  border-right: none;
+  color: var(--color-text-muted);
 }
+
 .score-icon {
   width: 22px;
   height: 22px;
-  fill: var(--brand-accent);
+  fill: var(--color-accent);
 }
+
 /* ==========================================
    GAME TOWER & BLOCKS
    ========================================== */
@@ -212,28 +214,31 @@ main {
   position: relative;
   width: 100%;
   height: 100%;
-  background-color: var(--sum-container-bg);
+  background-color: var(--color-sum-bg);
   overflow: hidden;
 }
+
 .block {
   position: absolute;
-  background-color: var(--block-color);
+  background-color: var(--color-block);
   background-size: cover;
   background-position: center;
-  border: var(--border-width) solid var(--block-border);
+  border: var(--border-width) solid var(--color-block-border);
   border-radius: var(--radius-sm);
-  box-shadow: var(--shadow-block-inset);
+  box-shadow: var(--shadow-block);
   will-change: top, left;
 }
+
 #base-block {
   width: 200px;
   left: 100px;
-  background-color: var(--base-block-color);
-  border-color: var(--base-block-border);
-  box-shadow: var(--shadow-base-inset);
+  background-color: var(--color-primary);
+  border-color: var(--color-primary-dark);
+  box-shadow: var(--shadow-base);
 }
+
 /* ==========================================
-   MODAL & POPUP DIALOGUE (PERFECTLY CENTERED)
+   MODAL & POPUP DIALOGUE
    ========================================== */
 #game-modal {
   position: absolute;
@@ -241,15 +246,17 @@ main {
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: var(--modal-backdrop-bg);
+  background-color: var(--color-backdrop);
   backdrop-filter: blur(4px);
   z-index: 10;
   transition: opacity 0.3s ease;
 }
+
 #game-modal.hidden {
   display: none;
   opacity: 0;
 }
+
 #modal-content {
   display: flex;
   flex-direction: column;
@@ -259,28 +266,29 @@ main {
   width: var(--modal-width);
   max-width: 90%;
   padding: var(--spacing-container);
-  background-color: var(--container-bg);
-  border: var(--border-width) solid var(--border-color);
+  background-color: var(--color-container-bg);
+  border: var(--border-width) solid var(--color-border);
   border-radius: var(--radius-xl);
   box-shadow: var(--shadow-modal);
   gap: var(--spacing-lg);
 }
+
 #modal-content h2 {
   margin: 0 auto;
-  text-align: center;
   font-family: var(--font-game);
   font-weight: 600;
   font-size: var(--font-size-md);
-  color: var(--text-color);
+  color: var(--color-text);
 }
+
 #modal-content p,
 #modal-message {
   margin: 0 auto;
-  text-align: center;
   font-size: var(--font-size-sm);
   line-height: 1.5;
-  color: var(--text-color-secondary);
+  color: var(--color-text-muted);
 }
+
 /* ==========================================
    MODAL STATISTICS ITEMS
    ========================================== */
@@ -292,69 +300,72 @@ main {
   margin: var(--spacing-sm) auto;
   width: 100%;
 }
+
 .stat-item {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background-color: var(--sum-container-bg);
-  border: var(--border-width) solid var(--border-color);
+  background-color: var(--color-sum-bg);
+  border: var(--border-width) solid var(--color-border);
   border-radius: var(--radius-md);
   padding: 0.85rem 1rem;
   width: 100px;
   box-shadow: var(--shadow-stat);
 }
+
 .stat-label {
   font-size: var(--font-size-xs);
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: var(--text-color-secondary);
+  color: var(--color-text-muted);
   margin-bottom: var(--spacing-xs);
-  text-align: center;
 }
+
 .stat-value {
   font-family: var(--font-game);
   font-size: var(--font-size-xl);
   font-weight: 700;
-  color: var(--brand-primary);
+  color: var(--color-primary);
   line-height: 1;
-  text-align: center;
 }
+
 /* ==========================================
    BUTTONS & INTERACTIONS
    ========================================== */
 #modal-content button {
   align-self: center;
   margin: var(--spacing-sm) auto 0 auto;
-  padding: var(--button-padding-y) var(--button-padding-x);
+  padding: clamp(0.7rem, 2vw, 0.8rem) clamp(1.5rem, 4vw, 2rem);
   width: 100%;
-  max-width: var(--button-max-width);
+  max-width: 190px;
   font-size: var(--font-size-base);
   font-weight: 600;
   font-family: var(--font-main);
   background: var(--gradient-btn);
-  color: var(--container-bg);
-  border: var(--border-width) solid
-    rgba(var(--rgb-white), var(--opacity-subtle-border));
+  color: var(--color-container-bg);
+  border: var(--border-width) solid rgba(255, 255, 255, 0.2);
   border-radius: var(--radius-pill);
   cursor: pointer;
   outline: none;
   box-shadow: var(--shadow-btn);
   transition: all 0.2s cubic-bezier(0.25, 1, 0.5, 1);
 }
+
 #modal-content button:hover {
   background: var(--gradient-btn-hover);
   box-shadow: var(--shadow-btn-hover);
 }
+
 #modal-content button:active {
   transform: scale(0.97);
   background: var(--gradient-btn-active);
   box-shadow: var(--shadow-btn-active);
 }
+
 /* ==========================================
    RESPONSIVENESS (MEDIA QUERIES)
    ========================================== */
-
 @media (min-width: 600px) {
   :root {
     --game-width: 80vw;
