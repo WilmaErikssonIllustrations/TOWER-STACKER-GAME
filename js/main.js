@@ -330,29 +330,40 @@ function placeBlock() {
       animate();
     }, fallDuration);
   } else {
-    if (currentBlock.dataset.type === "trump") {
-      isDropping = true;
-      cancelAnimationFrame(animationFrameId);
+    isDropping = true;
+    cancelAnimationFrame(animationFrameId);
 
-      const blockToAnimate = currentBlock;
-      blockToAnimate.style.transition =
-        "transform 0.5s ease-in, opacity 0.5s ease-in";
-      blockToAnimate.style.transform = `translateY(${GAME_OVER_FALL_DISTANCE}px)`;
-      blockToAnimate.style.opacity = "0";
+    const blockToAnimate = currentBlock;
+    blockToAnimate.style.transition =
+      "transform 0.5s ease-in, opacity 0.5s ease-in";
+    blockToAnimate.style.transform = `translateY(${GAME_OVER_FALL_DISTANCE}px)`;
+    blockToAnimate.style.opacity = "0";
 
-      setTimeout(() => {
-        if (blockToAnimate && blockToAnimate.parentNode) {
-          blockToAnimate.remove();
-        }
+    setTimeout(() => {
+      if (blockToAnimate && blockToAnimate.parentNode) {
+        blockToAnimate.remove();
+      }
+
+      if (blockToAnimate.dataset.type === "trump") {
         if (gameIsRunning) {
           isDropping = false;
           spawnBlock();
           animate();
         }
-      }, 500);
-    } else {
-      gameOver("miss");
-    }
+        return;
+      }
+
+      lives--;
+      updateLivesDisplay();
+
+      if (lives <= 0) {
+        gameOver("miss");
+      } else if (gameIsRunning) {
+        isDropping = false;
+        spawnBlock();
+        animate();
+      }
+    }, 500);
   }
 }
 
