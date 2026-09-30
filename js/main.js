@@ -383,20 +383,11 @@ function gameOver(reason) {
       "game-over",
     );
   } else {
-    if (currentBlock) {
-      currentBlock.style.transition =
-        "transform 1s ease-in, opacity 1s ease-in";
-      currentBlock.style.transform = `translateY(${GAME_OVER_FALL_DISTANCE}px)`;
-      currentBlock.style.opacity = "0";
-    }
-
-    setTimeout(() => {
-      showModal(
-        "<span>💥</span>Game Over<span>💥</span>",
-        createStatsHtml(score, timeSpent),
-        "game-over",
-      );
-    }, GAME_OVER_DELAY);
+    showModal(
+      "<span>💥</span>Game Over<span>💥</span>",
+      createStatsHtml(score, timeSpent),
+      "game-over",
+    );
   }
 }
 
