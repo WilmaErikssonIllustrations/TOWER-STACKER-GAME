@@ -1,408 +1,418 @@
 // ==========================================
-// 1. CONSTANTS
+// 1. CONSTANTS & CONFIGURATION
 // ==========================================
-const BLOCK_HEIGHT = 60;
-const INITIAL_SQUARE_BLOCK_SIZE = 80;
-const MIN_SQUARE_BLOCK_SIZE = 50;
-const SIZE_DECREMENT = 10;
-const INITIAL_BLOCK_WIDTH = 100;
-const INITIAL_BLOCK_SPEED = 6;
-const MAX_BLOCK_SPEED = 7;
-const SPEED_INCREMENT = 1;
-const TOP_MARGIN = 130;
-const GAME_OVER_FALL_DISTANCE = 200;
-const GAME_OVER_DELAY = 1200;
-const CONTAINER_PADDING = 20;
-const SPAWN_TOP_POSITION = "10px";
-const TRUMP_BLOCK_CHANCE = 0.3;
-const INITIAL_LIVES = 3;
+const CONFIG = {
+  BLOCK_HEIGHT: 60,
+  INITIAL_SQUARE_BLOCK_SIZE: 80,
+  MIN_SQUARE_BLOCK_SIZE: 50,
+  SIZE_DECREMENT: 10,
+  INITIAL_BLOCK_WIDTH: 100,
+  INITIAL_BLOCK_SPEED: 6,
+  MAX_BLOCK_SPEED: 7,
+  SPEED_INCREMENT: 1,
+  TOP_MARGIN: 130,
+  GAME_OVER_FALL_DISTANCE: 200,
+  CONTAINER_PADDING: 20,
+  SPAWN_TOP_POSITION: "10px",
+  TRUMP_BLOCK_CHANCE: 0.3,
+  INITIAL_LIVES: 3,
+  GAME_TIME_LIMIT: 30,
+};
 
 // ==========================================
-// 2. TIMER STATE & FUNCTIONS
+// 2. DOM ELEMENTS
 // ==========================================
-let timerInterval = null;
-let timeLeft = 30;
-const timerDisplay = document.getElementById("timer-value");
+const DOM = {
+  tower: document.getElementById("tower"),
+  scoreDisplay: document.getElementById("score-value"),
+  timerDisplay: document.getElementById("timer-value"),
+  livesDisplay: document.getElementById("lives-value"),
+  gameModal: document.getElementById("game-modal"),
+  modalTitle: document.getElementById("modal-title"),
+  modalMessage: document.getElementById("modal-message"),
+  startBtn: document.getElementById("start-btn"),
+};
 
-function startTimer(onTimeOut) {
-  stopTimer();
-  timeLeft = 30;
-  updateTimerDisplay();
+// ==========================================
+// 3. GAME STATE
+// ==========================================
+let state = {
+  timerInterval: null,
+  timeLeft: CONFIG.GAME_TIME_LIMIT,
+  lives: CONFIG.INITIAL_LIVES,
+  score: 0,
+  blockSpeed: CONFIG.INITIAL_BLOCK_SPEED,
+  currentBlockSize: CONFIG.INITIAL_SQUARE_BLOCK_SIZE,
+  currentBlock: null,
+  blocks: [],
+  gameIsRunning: false,
+  isDropping: false,
+  animationFrameId: null,
+};
 
-  timerInterval = setInterval(() => {
-    timeLeft--;
-    updateTimerDisplay();
-    if (timeLeft <= 0) {
-      stopTimer();
-      if (onTimeOut) onTimeOut();
+// ==========================================
+// 4. TIMER SYSTEM
+// ==========================================
+const Timer = {
+  start(onTimeOut) {
+    Timer.stop();
+    state.timeLeft = CONFIG.GAME_TIME_LIMIT;
+    Timer.updateDisplay();
+
+    state.timerInterval = setInterval(() => {
+      state.timeLeft--;
+      Timer.updateDisplay();
+      if (state.timeLeft <= 0) {
+        Timer.stop();
+        if (onTimeOut) onTimeOut();
+      }
+    }, 1000);
+  },
+
+  stop() {
+    if (state.timerInterval) {
+      clearInterval(state.timerInterval);
+      state.timerInterval = null;
     }
-  }, 1000);
-}
+  },
 
-function stopTimer() {
-  if (timerInterval) {
-    clearInterval(timerInterval);
-    timerInterval = null;
-  }
-}
+  getFormattedTimeSpent() {
+    return `${CONFIG.GAME_TIME_LIMIT - state.timeLeft}s`;
+  },
 
-function getTimeSpentFormatted() {
-  const timeSpent = 30 - timeLeft;
-  return `${timeSpent}s`;
-}
-
-function updateTimerDisplay() {
-  if (timerDisplay) {
-    timerDisplay.innerHTML = `${timeLeft}s`;
-  }
-}
+  updateDisplay() {
+    if (DOM.timerDisplay) {
+      DOM.timerDisplay.textContent = `${state.timeLeft}s`;
+    }
+  },
+};
 
 // ==========================================
-// 3. UI STATE & FUNCTIONS
+// 5. UI & MODAL MANAGEMENT
 // ==========================================
-const gameModal = document.getElementById("game-modal");
-const modalTitle = document.getElementById("modal-title");
-const modalMessage = document.getElementById("modal-message");
-const startBtn = document.getElementById("start-btn");
-const livesDisplay = document.getElementById("lives-value");
+const UI = {
+  updateLives() {
+    if (DOM.livesDisplay) {
+      DOM.livesDisplay.textContent = "❤️".repeat(state.lives);
+    }
+  },
 
-let lives = INITIAL_LIVES;
+  updateScore() {
+    if (DOM.scoreDisplay) {
+      DOM.scoreDisplay.textContent = state.score;
+    }
+  },
 
-function updateLivesDisplay() {
-  if (livesDisplay) {
-    livesDisplay.innerHTML = "❤️".repeat(lives);
-  }
-}
+  showModal(title, message, type = "default") {
+    if (DOM.modalTitle) DOM.modalTitle.innerHTML = title;
+    if (DOM.modalMessage) DOM.modalMessage.innerHTML = message;
 
-function showModal(title, message, type = "default") {
-  if (modalTitle) modalTitle.innerHTML = title;
-  if (modalMessage) modalMessage.innerHTML = message;
+    if (DOM.startBtn) {
+      DOM.startBtn.textContent =
+        type === "game-over" || type === "win" ? "Spela igen" : "Starta spelet";
+    }
 
-  if (startBtn) {
-    if (type === "game-over" || type === "win") {
-      startBtn.innerHTML = "Spela igen";
+    DOM.gameModal.classList.toggle("game-over", type === "game-over");
+    DOM.gameModal.classList.remove("hidden");
+  },
+
+  hideModal() {
+    if (DOM.gameModal) DOM.gameModal.classList.add("hidden");
+  },
+
+  showInstructions() {
+    UI.showModal(
+      "Snack Tower",
+      "<p>Tryck för att släppa snacks, bygg ett så högt snacks-torn som möjligt innan tiden tar slut!</p>",
+      "instructions",
+    );
+  },
+
+  createStatsHtml(score, timeSpent) {
+    return `
+      <div class="modal-stats">
+        <div class="stat-item">
+          <span class="stat-label">Poäng</span>
+          <span class="stat-value">${score}p</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Tid</span>
+          <span class="stat-value">${timeSpent}</span>
+        </div>
+      </div>
+    `;
+  },
+};
+
+// ==========================================
+// 6. GAME ENGINE & LOGIC
+// ==========================================
+const Game = {
+  getTowerHeight() {
+    return state.blocks.reduce((totalHeight, block) => {
+      const height = parseInt(block.style.height, 10) || CONFIG.BLOCK_HEIGHT;
+      return totalHeight + height;
+    }, 0);
+  },
+
+  start() {
+    cancelAnimationFrame(state.animationFrameId);
+    Timer.stop();
+
+    DOM.tower.innerHTML = "";
+    state.blocks = [];
+    state.currentBlock = null;
+    UI.hideModal();
+
+    const gameWidth = DOM.tower.clientWidth;
+    const initialBlockWidth = Math.min(
+      CONFIG.INITIAL_BLOCK_WIDTH,
+      gameWidth - CONFIG.CONTAINER_PADDING,
+    );
+
+    // Skapa basblock
+    const baseBlock = document.createElement("div");
+    baseBlock.id = "base-block";
+    baseBlock.classList.add("block");
+    Object.assign(baseBlock.style, {
+      width: `${initialBlockWidth}px`,
+      height: `${CONFIG.BLOCK_HEIGHT}px`,
+      left: `${(gameWidth - initialBlockWidth) / 2}px`,
+      bottom: "0px",
+      backgroundImage: "url('assets/pet-bowl.png')",
+      backgroundSize: "contain",
+      backgroundPosition: "center",
+      backgroundRepeat: "no-repeat",
+    });
+
+    DOM.tower.appendChild(baseBlock);
+    state.blocks.push(baseBlock);
+
+    // Återställ tillstånd
+    state.gameIsRunning = true;
+    state.isDropping = false;
+    state.score = 0;
+    state.lives = CONFIG.INITIAL_LIVES;
+    state.blockSpeed = CONFIG.INITIAL_BLOCK_SPEED;
+    state.currentBlockSize = CONFIG.INITIAL_SQUARE_BLOCK_SIZE;
+
+    UI.updateScore();
+    UI.updateLives();
+
+    Game.spawnBlock();
+    Timer.start(() => Game.gameOver("time-out"));
+    Game.animate();
+  },
+
+  spawnBlock() {
+    state.currentBlock = document.createElement("div");
+    state.currentBlock.classList.add("block");
+
+    const isTrumpBlock = Math.random() < CONFIG.TRUMP_BLOCK_CHANCE;
+    Object.assign(state.currentBlock.style, {
+      width: `${state.currentBlockSize}px`,
+      height: `${state.currentBlockSize}px`,
+      top: CONFIG.SPAWN_TOP_POSITION,
+      left: "0px",
+    });
+
+    if (isTrumpBlock) {
+      state.currentBlock.dataset.type = "trump";
+      Object.assign(state.currentBlock.style, {
+        backgroundImage: "url('assets/chocolate.png')",
+        backgroundColor: "rgba(255, 0, 0, 0.15)",
+        border: "1.5px solid rgba(255, 0, 0, 0.4)",
+        borderRadius: "6px",
+      });
     } else {
-      startBtn.innerHTML = "Starta spelet";
+      state.currentBlock.dataset.type = "normal";
+      state.currentBlock.style.backgroundImage = "url('assets/cat-food.png')";
     }
-  }
 
-  if (type === "game-over") {
-    gameModal.classList.add("game-over");
-  } else {
-    gameModal.classList.remove("game-over");
-  }
+    state.currentBlock.dataset.direction = "right";
+    DOM.tower.appendChild(state.currentBlock);
+  },
 
-  gameModal.classList.remove("hidden");
-}
+  animate() {
+    if (!state.gameIsRunning || state.isDropping || !state.currentBlock) return;
 
-function hideModal() {
-  if (gameModal) gameModal.classList.add("hidden");
-}
+    const gameWidth = DOM.tower.clientWidth;
+    let currentLeft = parseInt(state.currentBlock.style.left || 0, 10);
+    const currentWidth = parseInt(state.currentBlock.style.width, 10);
 
-function showInstructions() {
-  showModal(
-    "Snack Tower",
-    "<p>Tryck för att släppa snacks, bygg ett så högt snacks-torn som möjligt innan tiden tar slut!</p>",
-    "instructions",
-  );
-}
-
-function createStatsHtml(score, timeSpent) {
-  return `
-    <div class="modal-stats">
-      <div class="stat-item">
-        <span class="stat-label">Poäng</span>
-        <span class="stat-value">${score}p</span>
-      </div>
-      <div class="stat-item">
-        <span class="stat-label">Tid</span>
-        <span class="stat-value">${timeSpent}</span>
-      </div>
-    </div>
-  `;
-}
-
-// ==========================================
-// 4. GAME LOGIC & EVENT LISTENERS
-// ==========================================
-const tower = document.getElementById("tower");
-const scoreDisplay = document.getElementById("score-value");
-
-let currentBlock = null;
-let blocks = [];
-let gameIsRunning = false;
-let isDropping = false;
-let score = 0;
-let blockSpeed = INITIAL_BLOCK_SPEED;
-let currentBlockSize = INITIAL_SQUARE_BLOCK_SIZE;
-let animationFrameId = null;
-
-function getTowerHeight() {
-  return blocks.reduce((totalHeight, block) => {
-    const height = parseInt(block.style.height, 10) || BLOCK_HEIGHT;
-    return totalHeight + height;
-  }, 0);
-}
-
-function startGame() {
-  cancelAnimationFrame(animationFrameId);
-  stopTimer();
-
-  tower.innerHTML = "";
-  blocks = [];
-  currentBlock = null;
-  hideModal();
-
-  const gameWidth = tower.clientWidth;
-  const initialBlockWidth = Math.min(
-    INITIAL_BLOCK_WIDTH,
-    gameWidth - CONTAINER_PADDING,
-  );
-
-  const baseBlock = document.createElement("div");
-  baseBlock.id = "base-block";
-  baseBlock.classList.add("block");
-  baseBlock.style.width = `${initialBlockWidth}px`;
-  baseBlock.style.height = `${BLOCK_HEIGHT}px`;
-  baseBlock.style.left = `${(gameWidth - initialBlockWidth) / 2}px`;
-  baseBlock.style.bottom = "0px";
-  baseBlock.style.backgroundImage = `url('assets/pet-bowl.png')`;
-  baseBlock.style.backgroundSize = "contain";
-  baseBlock.style.backgroundPosition = "center";
-  baseBlock.style.backgroundRepeat = "no-repeat";
-
-  tower.appendChild(baseBlock);
-  blocks.push(baseBlock);
-
-  gameIsRunning = true;
-  isDropping = false;
-  score = 0;
-  lives = INITIAL_LIVES;
-  blockSpeed = INITIAL_BLOCK_SPEED;
-  currentBlockSize = INITIAL_SQUARE_BLOCK_SIZE;
-  updateScoreDisplay();
-  updateLivesDisplay();
-
-  spawnBlock();
-  startTimer(() => gameOver("time-out"));
-  animate();
-}
-
-function spawnBlock() {
-  currentBlock = document.createElement("div");
-  currentBlock.classList.add("block");
-
-  currentBlock.style.width = `${currentBlockSize}px`;
-  currentBlock.style.height = `${currentBlockSize}px`;
-
-  const isTrumpBlock = Math.random() < TRUMP_BLOCK_CHANCE;
-  if (isTrumpBlock) {
-    currentBlock.dataset.type = "trump";
-    currentBlock.style.backgroundImage = `url('assets/chocolate.png')`;
-    currentBlock.style.backgroundColor = "rgba(255, 0, 0, 0.15)";
-    currentBlock.style.border = "1.5px solid rgba(255, 0, 0, 0.4)";
-    currentBlock.style.borderRadius = "6px";
-  } else {
-    currentBlock.dataset.type = "normal";
-    currentBlock.style.backgroundImage = `url('assets/cat-food.png')`;
-    currentBlock.style.backgroundColor = "";
-    currentBlock.style.border = "";
-  }
-
-  currentBlock.style.top = SPAWN_TOP_POSITION;
-  currentBlock.style.bottom = "";
-  currentBlock.style.left = "0px";
-  currentBlock.dataset.direction = "right";
-
-  tower.appendChild(currentBlock);
-}
-
-function updateScoreDisplay() {
-  if (scoreDisplay) scoreDisplay.innerHTML = score;
-}
-
-function animate() {
-  if (!gameIsRunning || isDropping || !currentBlock) return;
-
-  const gameWidth = tower.clientWidth;
-  let currentLeft = parseInt(currentBlock.style.left || 0, 10);
-  const currentWidth = parseInt(currentBlock.style.width, 10);
-
-  if (currentBlock.dataset.direction === "right") {
-    currentLeft += blockSpeed;
-    if (currentLeft + currentWidth >= gameWidth) {
-      currentBlock.dataset.direction = "left";
+    if (state.currentBlock.dataset.direction === "right") {
+      currentLeft += state.blockSpeed;
+      if (currentLeft + currentWidth >= gameWidth) {
+        state.currentBlock.dataset.direction = "left";
+      }
+    } else {
+      currentLeft -= state.blockSpeed;
+      if (currentLeft <= 0) {
+        state.currentBlock.dataset.direction = "right";
+      }
     }
-  } else {
-    currentLeft -= blockSpeed;
-    if (currentLeft <= 0) {
-      currentBlock.dataset.direction = "right";
-    }
-  }
-  currentBlock.style.left = `${currentLeft}px`;
+    state.currentBlock.style.left = `${currentLeft}px`;
 
-  animationFrameId = requestAnimationFrame(animate);
-}
+    state.animationFrameId = requestAnimationFrame(Game.animate);
+  },
 
-function placeBlock() {
-  if (!gameIsRunning || isDropping || !currentBlock) return;
+  placeBlock() {
+    if (!state.gameIsRunning || state.isDropping || !state.currentBlock) return;
 
-  const previousBlock = blocks[blocks.length - 1];
-  const previousLeft = parseInt(previousBlock.style.left, 10);
-  const previousWidth = parseInt(previousBlock.style.width, 10);
+    const previousBlock = state.blocks[state.blocks.length - 1];
+    const prevLeft = parseInt(previousBlock.style.left, 10);
+    const prevWidth = parseInt(previousBlock.style.width, 10);
 
-  const currentLeft = parseInt(currentBlock.style.left, 10);
-  const currentWidth = parseInt(currentBlock.style.width, 10);
+    const currLeft = parseInt(state.currentBlock.style.left, 10);
+    const currWidth = parseInt(state.currentBlock.style.width, 10);
 
-  const overlapStart = Math.max(previousLeft, currentLeft);
-  const overlapEnd = Math.min(
-    previousLeft + previousWidth,
-    currentLeft + currentWidth,
-  );
-  const overlapWidth = overlapEnd - overlapStart;
+    const overlapStart = Math.max(prevLeft, currLeft);
+    const overlapEnd = Math.min(prevLeft + prevWidth, currLeft + currWidth);
+    const overlapWidth = overlapEnd - overlapStart;
 
-  if (overlapWidth > 0) {
-    isDropping = true;
-    cancelAnimationFrame(animationFrameId);
+    state.isDropping = true;
+    cancelAnimationFrame(state.animationFrameId);
 
-    const targetBottom = getTowerHeight();
-    const blockToAnimate = currentBlock;
-    const fallDuration = 350;
-    blockToAnimate.style.transition = `top ${fallDuration / 1000}s cubic-bezier(0.4, 0, 0.2, 1)`;
-    const targetTop = tower.clientHeight - targetBottom - currentBlockSize;
-    blockToAnimate.style.top = `${targetTop}px`;
+    const blockToAnimate = state.currentBlock;
 
-    setTimeout(() => {
-      if (!gameIsRunning) return;
+    if (overlapWidth > 0) {
+      const targetBottom = Game.getTowerHeight();
+      const fallDuration = 350;
+      blockToAnimate.style.transition = `top ${fallDuration / 1000}s cubic-bezier(0.4, 0, 0.2, 1)`;
+      const targetTop =
+        DOM.tower.clientHeight - targetBottom - state.currentBlockSize;
+      blockToAnimate.style.top = `${targetTop}px`;
 
-      blockToAnimate.style.transition = "";
+      setTimeout(() => {
+        if (!state.gameIsRunning) return;
+        blockToAnimate.style.transition = "";
 
-      if (blockToAnimate.dataset.type === "trump") {
-        lives--;
-        updateLivesDisplay();
+        if (blockToAnimate.dataset.type === "trump") {
+          state.lives--;
+          UI.updateLives();
+          blockToAnimate.remove();
 
-        blockToAnimate.remove();
+          if (state.lives <= 0) {
+            Game.gameOver("trump");
+            return;
+          }
 
-        if (lives <= 0) {
-          gameOver("trump");
+          state.isDropping = false;
+          Game.spawnBlock();
+          Game.animate();
           return;
         }
 
-        isDropping = false;
-        spawnBlock();
-        animate();
-        return;
-      }
+        blockToAnimate.style.top = "";
+        blockToAnimate.style.bottom = `${targetBottom}px`;
 
-      blockToAnimate.style.top = "";
-      blockToAnimate.style.bottom = `${targetBottom}px`;
-
-      score++;
-      blockSpeed = Math.min(blockSpeed + SPEED_INCREMENT, MAX_BLOCK_SPEED);
-
-      currentBlockSize = Math.max(
-        MIN_SQUARE_BLOCK_SIZE,
-        currentBlockSize - SIZE_DECREMENT,
-      );
-
-      updateScoreDisplay();
-      blocks.push(blockToAnimate);
-
-      const maxHeight = tower.clientHeight - TOP_MARGIN;
-      const currentBlockTop = targetBottom + currentBlockSize;
-
-      if (currentBlockTop >= maxHeight) {
-        gameIsRunning = false;
-        stopTimer();
-        if (currentBlock && currentBlock.parentNode) {
-          currentBlock.remove();
-        }
-        const timeSpent = getTimeSpentFormatted();
-        showModal(
-          "<span>🥇</span>Du nådde toppen!<span>🥇</span>",
-          createStatsHtml(score, timeSpent),
-          "win",
+        state.score++;
+        state.blockSpeed = Math.min(
+          state.blockSpeed + CONFIG.SPEED_INCREMENT,
+          CONFIG.MAX_BLOCK_SPEED,
         );
-        return;
-      }
+        state.currentBlockSize = Math.max(
+          CONFIG.MIN_SQUARE_BLOCK_SIZE,
+          state.currentBlockSize - CONFIG.SIZE_DECREMENT,
+        );
 
-      isDropping = false;
-      spawnBlock();
-      animate();
-    }, fallDuration);
-  } else {
-    isDropping = true;
-    cancelAnimationFrame(animationFrameId);
+        UI.updateScore();
+        state.blocks.push(blockToAnimate);
 
-    const blockToAnimate = currentBlock;
-    blockToAnimate.style.transition =
-      "transform 0.5s ease-in, opacity 0.5s ease-in";
-    blockToAnimate.style.transform = `translateY(${GAME_OVER_FALL_DISTANCE}px)`;
-    blockToAnimate.style.opacity = "0";
+        const maxHeight = DOM.tower.clientHeight - CONFIG.TOP_MARGIN;
+        const currentBlockTop = targetBottom + state.currentBlockSize;
 
-    setTimeout(() => {
-      if (blockToAnimate && blockToAnimate.parentNode) {
-        blockToAnimate.remove();
-      }
+        if (currentBlockTop >= maxHeight) {
+          state.gameIsRunning = false;
+          Timer.stop();
+          blockToAnimate?.remove();
 
-      if (blockToAnimate.dataset.type === "trump") {
-        if (gameIsRunning) {
-          isDropping = false;
-          spawnBlock();
-          animate();
+          const timeSpent = Timer.getFormattedTimeSpent();
+          UI.showModal(
+            "<span>🥇</span>Du nådde toppen!<span>🥇</span>",
+            UI.createStatsHtml(state.score, timeSpent),
+            "win",
+          );
+          return;
         }
-        return;
-      }
 
-      lives--;
-      updateLivesDisplay();
+        state.isDropping = false;
+        Game.spawnBlock();
+        Game.animate();
+      }, fallDuration);
+    } else {
+      blockToAnimate.style.transition =
+        "transform 0.5s ease-in, opacity 0.5s ease-in";
+      blockToAnimate.style.transform = `translateY(${CONFIG.GAME_OVER_FALL_DISTANCE}px)`;
+      blockToAnimate.style.opacity = "0";
 
-      if (lives <= 0) {
-        gameOver("miss");
-      } else if (gameIsRunning) {
-        isDropping = false;
-        spawnBlock();
-        animate();
-      }
-    }, 500);
-  }
-}
+      setTimeout(() => {
+        blockToAnimate?.remove();
 
-function gameOver(reason) {
-  gameIsRunning = false;
-  isDropping = false;
-  cancelAnimationFrame(animationFrameId);
-  stopTimer();
-  const timeSpent = getTimeSpentFormatted();
+        if (blockToAnimate.dataset.type === "trump") {
+          if (state.gameIsRunning) {
+            state.isDropping = false;
+            Game.spawnBlock();
+            Game.animate();
+          }
+          return;
+        }
 
-  if (reason === "time-out") {
-    showModal("Tiden är slut!", createStatsHtml(score, timeSpent), "game-over");
-  } else if (reason === "trump") {
-    showModal(
-      "<span>🍫</span>Game Over!<span>🍫</span>",
-      `<p class="modal-text">Djur tål inte choklad!</p>${createStatsHtml(score, timeSpent)}`,
-      "game-over",
-    );
-  } else {
-    showModal(
-      "<span>💥</span>Game Over<span>💥</span>",
-      createStatsHtml(score, timeSpent),
-      "game-over",
-    );
-  }
-}
+        state.lives--;
+        UI.updateLives();
 
+        if (state.lives <= 0) {
+          Game.gameOver("miss");
+        } else if (state.gameIsRunning) {
+          state.isDropping = false;
+          Game.spawnBlock();
+          Game.animate();
+        }
+      }, 500);
+    }
+  },
+
+  gameOver(reason) {
+    state.gameIsRunning = false;
+    state.isDropping = false;
+    cancelAnimationFrame(state.animationFrameId);
+    Timer.stop();
+
+    const timeSpent = Timer.getFormattedTimeSpent();
+    const statsHtml = UI.createStatsHtml(state.score, timeSpent);
+
+    let title = "<span>💥</span>Game Over<span>💥</span>";
+    let message = statsHtml;
+    let type = "game-over";
+
+    if (reason === "time-out") {
+      title = "Tiden är slut!";
+    } else if (reason === "trump") {
+      title = "<span>🍫</span>Game Over!<span>🍫</span>";
+      message = `<p class="modal-text">Djur tål inte choklad!</p>${statsHtml}`;
+    }
+
+    UI.showModal(title, message, type);
+  },
+};
+
+// ==========================================
+// 7. EVENT LISTENERS & INIT
+// ==========================================
 document.addEventListener("click", (e) => {
-  if (e.target === startBtn || (startBtn && startBtn.contains(e.target)))
+  if (
+    DOM.startBtn &&
+    (e.target === DOM.startBtn || DOM.startBtn.contains(e.target))
+  )
     return;
-  placeBlock();
+  Game.placeBlock();
 });
 
-if (startBtn) {
-  startBtn.addEventListener("click", (e) => {
+if (DOM.startBtn) {
+  DOM.startBtn.addEventListener("click", (e) => {
     e.stopPropagation();
-    startGame();
+    Game.start();
   });
 }
 
-showInstructions();
+UI.showInstructions();
