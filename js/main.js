@@ -1,38 +1,25 @@
 // ==========================================
 // 1. CONSTANTS
 // ==========================================
-const BLOCK_HEIGHT = 30;
-const SQUARE_BLOCK_SIZE = 100;
-const INITIAL_BLOCK_WIDTH = 200;
-const INITIAL_BLOCK_SPEED = 7;
-const SPEED_INCREMENT = 3;
+const BLOCK_HEIGHT = 60;
+const INITIAL_SQUARE_BLOCK_SIZE = 80;
+const MIN_SQUARE_BLOCK_SIZE = 50;
+const SIZE_DECREMENT = 10;
+const INITIAL_BLOCK_WIDTH = 100;
+const INITIAL_BLOCK_SPEED = 6;
+const SPEED_INCREMENT = 2;
 const TOP_MARGIN = 130;
 const GAME_OVER_FALL_DISTANCE = 200;
 const GAME_OVER_DELAY = 1200;
 const CONTAINER_PADDING = 20;
 const SPAWN_TOP_POSITION = "10px";
-const LOGOS = [
-  "/assets/angbyiflogo.jpeg",
-  "assets/be-active-day-logo.png",
-  "assets/bjorklinge-traningscenter-logo.png",
-  "assets/formgotlandlogo.png",
-  "assets/friskislogo.png",
-  "assets/hagabadet-logo.jpeg",
-  "assets/jjlogo.jpeg",
-  "assets/kristinedalslogo.jpg",
-  "assets/malkarslogo.jpg",
-  "assets/satslogo.png",
-  "assets/sgylogo.jpg",
-  "assets/stclogo.png",
-  "assets/team-isak-logo.png",
-  "assets/umlogo.jpeg",
-];
+const TRUMP_BLOCK_CHANCE = 0.1;
 
 // ==========================================
 // 2. TIMER STATE & FUNCTIONS
 // ==========================================
 let timerInterval = null;
-let timeLeft = 60;
+let timeLeft = 30;
 const timerDisplay = document.getElementById("timer-value");
 
 function startTimer(onTimeOut) {
@@ -78,14 +65,13 @@ const startBtn = document.getElementById("start-btn");
 
 function showModal(title, message, type = "default") {
   if (modalTitle) modalTitle.innerHTML = title;
-
   if (modalMessage) modalMessage.innerHTML = message;
 
   if (startBtn) {
     if (type === "game-over" || type === "win") {
       startBtn.innerHTML = "Spela igen";
     } else {
-      startBtn.innerHTMLt = "Starta spelet";
+      startBtn.innerHTML = "Starta spelet";
     }
   }
 
@@ -104,34 +90,24 @@ function hideModal() {
 
 function showInstructions() {
   showModal(
-    "Tower Stacker",
-    "Vänsterklicka för att släppa blocket. Bygg ett så högt torn som möjligt innan tiden tar slut!",
+    "Snack Tower",
+    "<p>Tryck för att släppa snacks, bygg ett så högt snacks-torn som möjligt innan tiden tar slut!</p>",
     "instructions",
   );
 }
+
 function createStatsHtml(score, timeSpent) {
   return `
-
-<div class="modal-stats">
-
+    <div class="modal-stats">
       <div class="stat-item">
-
         <span class="stat-label">Poäng</span>
-
         <span class="stat-value">${score}p</span>
-
       </div>
-
       <div class="stat-item">
-
         <span class="stat-label">Tid</span>
-
         <span class="stat-value">${timeSpent}</span>
-
       </div>
-
     </div>
-
   `;
 }
 
@@ -143,19 +119,12 @@ const scoreDisplay = document.getElementById("score-value");
 
 let currentBlock = null;
 let blocks = [];
-let gameIsRunning = true;
+let gameIsRunning = false;
 let isDropping = false;
 let score = 0;
 let blockSpeed = INITIAL_BLOCK_SPEED;
-let animationFrameId;
-let remainingLogos = [];
-
-function getRandomLogo() {
-  if (remainingLogos.length === 0) {
-    remainingLogos = [...LOGOS].sort(() => Math.random() - 0.5);
-  }
-  return remainingLogos.pop();
-}
+let currentBlockSize = INITIAL_SQUARE_BLOCK_SIZE;
+let animationFrameId = null;
 
 function getTowerHeight() {
   return blocks.reduce((totalHeight, block) => {
@@ -165,11 +134,13 @@ function getTowerHeight() {
 }
 
 function startGame() {
+  cancelAnimationFrame(animationFrameId);
+  stopTimer();
+
   tower.innerHTML = "";
   blocks = [];
+  currentBlock = null;
   hideModal();
-
-  remainingLogos = [...LOGOS].sort(() => Math.random() - 0.5);
 
   const gameWidth = tower.clientWidth;
   const initialBlockWidth = Math.min(
@@ -184,6 +155,10 @@ function startGame() {
   baseBlock.style.height = `${BLOCK_HEIGHT}px`;
   baseBlock.style.left = `${(gameWidth - initialBlockWidth) / 2}px`;
   baseBlock.style.bottom = "0px";
+  baseBlock.style.backgroundImage = `url('assets/pet-bowl.png')`;
+  baseBlock.style.backgroundSize = "contain";
+  baseBlock.style.backgroundPosition = "center";
+  baseBlock.style.backgroundRepeat = "no-repeat";
 
   tower.appendChild(baseBlock);
   blocks.push(baseBlock);
@@ -192,6 +167,7 @@ function startGame() {
   isDropping = false;
   score = 0;
   blockSpeed = INITIAL_BLOCK_SPEED;
+  currentBlockSize = INITIAL_SQUARE_BLOCK_SIZE;
   updateScoreDisplay();
 
   spawnBlock();
@@ -203,9 +179,23 @@ function spawnBlock() {
   currentBlock = document.createElement("div");
   currentBlock.classList.add("block");
 
-  currentBlock.style.width = `${SQUARE_BLOCK_SIZE}px`;
-  currentBlock.style.height = `${SQUARE_BLOCK_SIZE}px`;
-  currentBlock.style.backgroundImage = `url('${getRandomLogo()}')`;
+  currentBlock.style.width = `${currentBlockSize}px`;
+  currentBlock.style.height = `${currentBlockSize}px`;
+
+  const isTrumpBlock = Math.random() < TRUMP_BLOCK_CHANCE;
+  if (isTrumpBlock) {
+    currentBlock.dataset.type = "trump";
+    currentBlock.style.backgroundImage = `url('assets/chocolate.png')`;
+    currentBlock.style.backgroundColor = "rgba(255, 0, 0, 0.15)";
+    currentBlock.style.border = "1.5px solid rgba(255, 0, 0, 0.4)";
+    currentBlock.style.borderRadius = "6px";
+  } else {
+    currentBlock.dataset.type = "normal";
+    currentBlock.style.backgroundImage = `url('assets/cat-food.png')`;
+
+    currentBlock.style.backgroundColor = "";
+    currentBlock.style.border = "";
+  }
 
   currentBlock.style.top = SPAWN_TOP_POSITION;
   currentBlock.style.bottom = "";
@@ -220,7 +210,7 @@ function updateScoreDisplay() {
 }
 
 function animate() {
-  if (!gameIsRunning || isDropping) return;
+  if (!gameIsRunning || isDropping || !currentBlock) return;
 
   const gameWidth = tower.clientWidth;
   let currentLeft = parseInt(currentBlock.style.left || 0, 10);
@@ -243,7 +233,7 @@ function animate() {
 }
 
 function placeBlock() {
-  if (!gameIsRunning || isDropping) return;
+  if (!gameIsRunning || isDropping || !currentBlock) return;
 
   const previousBlock = blocks[blocks.length - 1];
   const previousLeft = parseInt(previousBlock.style.left, 10);
@@ -267,21 +257,34 @@ function placeBlock() {
     const blockToAnimate = currentBlock;
     const fallDuration = 350;
     blockToAnimate.style.transition = `top ${fallDuration / 1000}s cubic-bezier(0.4, 0, 0.2, 1)`;
-    const targetTop = tower.clientHeight - targetBottom - SQUARE_BLOCK_SIZE;
+    const targetTop = tower.clientHeight - targetBottom - currentBlockSize;
     blockToAnimate.style.top = `${targetTop}px`;
 
-    score++;
-    blockSpeed += SPEED_INCREMENT;
-    updateScoreDisplay();
-    blocks.push(currentBlock);
-
     setTimeout(() => {
+      if (!gameIsRunning) return;
+
       blockToAnimate.style.transition = "";
       blockToAnimate.style.top = "";
       blockToAnimate.style.bottom = `${targetBottom}px`;
 
+      if (blockToAnimate.dataset.type === "trump") {
+        gameOver("trump");
+        return;
+      }
+
+      score++;
+      blockSpeed += SPEED_INCREMENT;
+
+      currentBlockSize = Math.max(
+        MIN_SQUARE_BLOCK_SIZE,
+        currentBlockSize - SIZE_DECREMENT,
+      );
+
+      updateScoreDisplay();
+      blocks.push(blockToAnimate);
+
       const maxHeight = tower.clientHeight - TOP_MARGIN;
-      const currentBlockTop = targetBottom + SQUARE_BLOCK_SIZE;
+      const currentBlockTop = targetBottom + currentBlockSize;
 
       if (currentBlockTop >= maxHeight) {
         gameIsRunning = false;
@@ -292,9 +295,7 @@ function placeBlock() {
         const timeSpent = getTimeSpentFormatted();
         showModal(
           "<span>🥇</span>Du nådde toppen!<span>🥇</span>",
-
           createStatsHtml(score, timeSpent),
-
           "win",
         );
         return;
@@ -305,27 +306,54 @@ function placeBlock() {
       animate();
     }, fallDuration);
   } else {
-    gameOver();
+    if (currentBlock.dataset.type === "trump") {
+      isDropping = true;
+      cancelAnimationFrame(animationFrameId);
+
+      const blockToAnimate = currentBlock;
+      blockToAnimate.style.transition =
+        "transform 0.5s ease-in, opacity 0.5s ease-in";
+      blockToAnimate.style.transform = `translateY(${GAME_OVER_FALL_DISTANCE}px)`;
+      blockToAnimate.style.opacity = "0";
+
+      setTimeout(() => {
+        if (blockToAnimate && blockToAnimate.parentNode) {
+          blockToAnimate.remove();
+        }
+        if (gameIsRunning) {
+          isDropping = false;
+          spawnBlock();
+          animate();
+        }
+      }, 500);
+    } else {
+      gameOver("miss");
+    }
   }
 }
 
 function gameOver(reason) {
   gameIsRunning = false;
+  isDropping = false;
   cancelAnimationFrame(animationFrameId);
   stopTimer();
   const timeSpent = getTimeSpentFormatted();
+
   if (reason === "time-out") {
+    showModal("Tiden är slut!", createStatsHtml(score, timeSpent), "game-over");
+  } else if (reason === "trump") {
     showModal(
-      "Tiden är slut!",
-
-      createStatsHtml(score, timeSpent),
-
+      "<span>🍫</span>Game Over!<span>🍫</span>",
+      `<p class="modal-text">Djur tål inte choklad!</p>${createStatsHtml(score, timeSpent)}`,
       "game-over",
     );
   } else {
-    currentBlock.style.transition = "transform 1s ease-in, opacity 1s ease-in";
-    currentBlock.style.transform = `translateY(${GAME_OVER_FALL_DISTANCE}px)`;
-    currentBlock.style.opacity = "0";
+    if (currentBlock) {
+      currentBlock.style.transition =
+        "transform 1s ease-in, opacity 1s ease-in";
+      currentBlock.style.transform = `translateY(${GAME_OVER_FALL_DISTANCE}px)`;
+      currentBlock.style.opacity = "0";
+    }
 
     setTimeout(() => {
       showModal(
@@ -338,15 +366,14 @@ function gameOver(reason) {
 }
 
 document.addEventListener("click", (e) => {
-  if (e.target === startBtn) return;
-
+  if (e.target === startBtn || (startBtn && startBtn.contains(e.target)))
+    return;
   placeBlock();
 });
 
 if (startBtn) {
   startBtn.addEventListener("click", (e) => {
     e.stopPropagation();
-
     startGame();
   });
 }
