@@ -2,7 +2,7 @@
 // 1. CONSTANTS & CONFIGURATION
 // ==========================================
 const CONFIG = {
-  BLOCK_HEIGHT: 60,
+  TOTAL_BLOCKS_TO_WIN: 8,
   INITIAL_SQUARE_BLOCK_SIZE: 80,
   MIN_SQUARE_BLOCK_SIZE: 50,
   SIZE_DECREMENT: 10,
@@ -14,7 +14,7 @@ const CONFIG = {
   GAME_OVER_FALL_DISTANCE: 200,
   CONTAINER_PADDING: 20,
   SPAWN_TOP_POSITION: "10px",
-  TRUMP_BLOCK_CHANCE: 0.2,
+  TRUMP_BLOCK_CHANCE: 0.25,
   INITIAL_LIVES: 3,
   GAME_TIME_LIMIT: 30,
 };
@@ -43,11 +43,16 @@ let state = {
   score: 0,
   blockSpeed: CONFIG.INITIAL_BLOCK_SPEED,
   currentBlockSize: CONFIG.INITIAL_SQUARE_BLOCK_SIZE,
+  dynamicBlockHeight: 60,
+  exactWinLineTop: 0, // Spara mållinjens position i state
   currentBlock: null,
   blocks: [],
   gameIsRunning: false,
   isDropping: false,
   animationFrameId: null,
+  trumpBlocksSpawnedThisRound: 0,
+  totalBlocksSpawnedThisRound: 0,
+  targetTrumpCount: 1,
 };
 
 // ==========================================
@@ -102,6 +107,23 @@ const UI = {
       DOM.scoreDisplay.textContent = state.score;
     }
   },
+  showBonusText(text, x, y, isPenalty = false) {
+    const bonusEl = document.createElement("div");
+    bonusEl.className = `bonus-popup ${isPenalty ? "penalty" : "bonus"}`;
+    bonusEl.textContent = text;
+
+    bonusEl.style.left = `${x}px`;
+    bonusEl.style.top = `${y}px`;
+
+    DOM.tower.appendChild(bonusEl);
+
+    requestAnimationFrame(() => {
+      bonusEl.style.transform = "translateY(-30px)";
+      bonusEl.style.opacity = "0";
+    });
+
+    setTimeout(() => bonusEl.remove(), 2000);
+  },
 
   showModal(title, message, type = "default") {
     if (DOM.modalTitle) DOM.modalTitle.innerHTML = title;
@@ -150,7 +172,7 @@ const UI = {
 const Game = {
   getTowerHeight() {
     return state.blocks.reduce((totalHeight, block) => {
-      const height = parseInt(block.style.height, 10) || CONFIG.BLOCK_HEIGHT;
+      const height = parseFloat(block.style.height) || state.dynamicBlockHeight;
       return totalHeight + height;
     }, 0);
   },
@@ -164,9 +186,16 @@ const Game = {
     state.currentBlock = null;
     UI.hideModal();
 
+    const availableHeight = DOM.tower.clientHeight - CONFIG.TOP_MARGIN;
+    state.dynamicBlockHeight = availableHeight / CONFIG.TOTAL_BLOCKS_TO_WIN;
+
+    const exactTargetHeight =
+      state.dynamicBlockHeight * CONFIG.TOTAL_BLOCKS_TO_WIN;
+    state.exactWinLineTop = DOM.tower.clientHeight - exactTargetHeight;
+
     const winLine = document.createElement("div");
     winLine.id = "win-line";
-    winLine.style.top = `${CONFIG.TOP_MARGIN}px`;
+    winLine.style.top = `${state.exactWinLineTop}px`;
     DOM.tower.appendChild(winLine);
 
     const gameWidth = DOM.tower.clientWidth;
@@ -175,31 +204,32 @@ const Game = {
       gameWidth - CONFIG.CONTAINER_PADDING,
     );
 
-    // Skapa basblock
     const baseBlock = document.createElement("div");
     baseBlock.id = "base-block";
     baseBlock.classList.add("block");
+
+    const baseBlockTop = DOM.tower.clientHeight - state.dynamicBlockHeight;
+
     Object.assign(baseBlock.style, {
       width: `${initialBlockWidth}px`,
-      height: `${CONFIG.BLOCK_HEIGHT}px`,
+      height: `${state.dynamicBlockHeight}px`,
       left: `${(gameWidth - initialBlockWidth) / 2}px`,
-      bottom: "0px",
-      backgroundImage: "url('assets/pet-bowl.png')",
-      backgroundSize: "contain",
-      backgroundPosition: "center",
-      backgroundRepeat: "no-repeat",
+      top: `${baseBlockTop}px`,
     });
 
     DOM.tower.appendChild(baseBlock);
     state.blocks.push(baseBlock);
 
-    // Återställ tillstånd
     state.gameIsRunning = true;
     state.isDropping = false;
     state.score = 0;
     state.lives = CONFIG.INITIAL_LIVES;
     state.blockSpeed = CONFIG.INITIAL_BLOCK_SPEED;
     state.currentBlockSize = CONFIG.INITIAL_SQUARE_BLOCK_SIZE;
+
+    state.trumpBlocksSpawnedThisRound = 0;
+    state.totalBlocksSpawnedThisRound = 0;
+    state.targetTrumpCount = Math.floor(Math.random() * 3) + 1;
 
     UI.updateScore();
     UI.updateLives();
@@ -213,26 +243,49 @@ const Game = {
     state.currentBlock = document.createElement("div");
     state.currentBlock.classList.add("block");
 
-    const isTrumpBlock = Math.random() < CONFIG.TRUMP_BLOCK_CHANCE;
+    state.totalBlocksSpawnedThisRound++;
+
+    let isTrumpBlock = false;
+
+    if (state.totalBlocksSpawnedThisRound > 1) {
+      const currentHeight = Game.getTowerHeight();
+      const remainingHeightToWin =
+        DOM.tower.clientHeight - CONFIG.TOP_MARGIN - currentHeight;
+      const estimatedBlocksRemaining = Math.max(
+        1,
+        Math.ceil(remainingHeightToWin / state.dynamicBlockHeight),
+      );
+
+      const canSpawnTrump =
+        state.trumpBlocksSpawnedThisRound < 3 && estimatedBlocksRemaining > 1;
+
+      if (canSpawnTrump) {
+        const neededSoFar =
+          state.targetTrumpCount - state.trumpBlocksSpawnedThisRound;
+
+        if (estimatedBlocksRemaining <= neededSoFar + 1) {
+          isTrumpBlock = true;
+        } else {
+          const chance = neededSoFar / estimatedBlocksRemaining;
+          isTrumpBlock =
+            Math.random() < chance ||
+            (state.trumpBlocksSpawnedThisRound === 0 &&
+              estimatedBlocksRemaining <= 4);
+        }
+      }
+    }
+
+    // Sätt datatyp så CSS styr utseendet
+    state.currentBlock.dataset.type = isTrumpBlock ? "trump" : "normal";
+    if (isTrumpBlock) state.trumpBlocksSpawnedThisRound++;
+
+    // Endast storlek och position sätts via JS
     Object.assign(state.currentBlock.style, {
       width: `${state.currentBlockSize}px`,
-      height: `${state.currentBlockSize}px`,
+      height: `${state.dynamicBlockHeight}px`,
       top: CONFIG.SPAWN_TOP_POSITION,
       left: "0px",
     });
-
-    if (isTrumpBlock) {
-      state.currentBlock.dataset.type = "trump";
-      Object.assign(state.currentBlock.style, {
-        backgroundImage: "url('assets/chocolate.png')",
-        backgroundColor: "rgba(255, 0, 0, 0.15)",
-        border: "1.5px solid rgba(255, 0, 0, 0.4)",
-        borderRadius: "6px",
-      });
-    } else {
-      state.currentBlock.dataset.type = "normal";
-      state.currentBlock.style.backgroundImage = "url('assets/cat-food.png')";
-    }
 
     state.currentBlock.dataset.direction = "right";
     DOM.tower.appendChild(state.currentBlock);
@@ -242,8 +295,8 @@ const Game = {
     if (!state.gameIsRunning || state.isDropping || !state.currentBlock) return;
 
     const gameWidth = DOM.tower.clientWidth;
-    let currentLeft = parseInt(state.currentBlock.style.left || 0, 10);
-    const currentWidth = parseInt(state.currentBlock.style.width, 10);
+    let currentLeft = parseFloat(state.currentBlock.style.left || 0);
+    const currentWidth = parseFloat(state.currentBlock.style.width);
 
     if (state.currentBlock.dataset.direction === "right") {
       currentLeft += state.blockSpeed;
@@ -265,11 +318,11 @@ const Game = {
     if (!state.gameIsRunning || state.isDropping || !state.currentBlock) return;
 
     const previousBlock = state.blocks[state.blocks.length - 1];
-    const prevLeft = parseInt(previousBlock.style.left, 10);
-    const prevWidth = parseInt(previousBlock.style.width, 10);
+    const prevLeft = parseFloat(previousBlock.style.left);
+    const prevWidth = parseFloat(previousBlock.style.width);
 
-    const currLeft = parseInt(state.currentBlock.style.left, 10);
-    const currWidth = parseInt(state.currentBlock.style.width, 10);
+    const currLeft = parseFloat(state.currentBlock.style.left);
+    const currWidth = parseFloat(state.currentBlock.style.width);
 
     const overlapStart = Math.max(prevLeft, currLeft);
     const overlapEnd = Math.min(prevLeft + prevWidth, currLeft + currWidth);
@@ -283,9 +336,14 @@ const Game = {
     if (overlapWidth > 5) {
       const targetBottom = Game.getTowerHeight();
       const fallDuration = 350;
+
       blockToAnimate.style.transition = `top ${fallDuration / 1000}s cubic-bezier(0.4, 0, 0.2, 1)`;
+
+      void blockToAnimate.offsetHeight;
+
       const targetTop =
-        DOM.tower.clientHeight - targetBottom - state.currentBlockSize;
+        DOM.tower.clientHeight - targetBottom - state.dynamicBlockHeight;
+
       blockToAnimate.style.top = `${targetTop}px`;
 
       setTimeout(() => {
@@ -295,6 +353,9 @@ const Game = {
         if (blockToAnimate.dataset.type === "trump") {
           state.lives--;
           UI.updateLives();
+
+          UI.showBonusText("-❤️", currLeft, targetTop - 20, true);
+
           blockToAnimate.remove();
 
           if (state.lives <= 0) {
@@ -308,10 +369,22 @@ const Game = {
           return;
         }
 
-        blockToAnimate.style.top = "";
-        blockToAnimate.style.bottom = `${targetBottom}px`;
+        // Lås positionen med enbart `top`
+        blockToAnimate.style.top = `${targetTop}px`;
 
-        state.score++;
+        const prevCenterX = prevLeft + prevWidth / 2;
+        const currCenterX = currLeft + currWidth / 2;
+        const alignmentDifference = Math.abs(currCenterX - prevCenterX);
+
+        const isPerfect = alignmentDifference <= 5;
+
+        let pointsEarned = 10;
+        if (isPerfect) {
+          pointsEarned = 100;
+          UI.showBonusText("+100", currLeft, targetTop - 20);
+        }
+
+        state.score += pointsEarned;
         state.blockSpeed = Math.min(
           state.blockSpeed + CONFIG.SPEED_INCREMENT,
           CONFIG.MAX_BLOCK_SPEED,
@@ -324,20 +397,20 @@ const Game = {
         UI.updateScore();
         state.blocks.push(blockToAnimate);
 
-        // --- VINSTKONTROLL ---
-        // Vinstlinjens underkant mätt från toppen (TOP_MARGIN + 5px linjetjocklek):
+        // Mållinje-beräkning (fungerar perfekt nu när allt använder top)
         const WIN_LINE_THICKNESS = 5;
-        const winLineBottomFromTop = CONFIG.TOP_MARGIN + WIN_LINE_THICKNESS;
+        const winLineBottomFromTop = state.exactWinLineTop + WIN_LINE_THICKNESS;
+        const blockTopFromTop = targetTop;
 
-        // Det placerade blockets överkant mätt från toppen av tower:
-        const blockTopFromTop =
-          DOM.tower.clientHeight - (targetBottom + state.currentBlockSize);
+        const normalBlocksPlaced = state.blocks.length - 1;
 
-        // Om blockets överkant når upp till eller passerar botten av win-line -> VINST!
-        if (blockTopFromTop <= winLineBottomFromTop) {
+        const reachedWinLine = blockTopFromTop <= winLineBottomFromTop + 2;
+        const reachedTargetBlockCount =
+          normalBlocksPlaced >= CONFIG.TOTAL_BLOCKS_TO_WIN;
+
+        if (reachedWinLine || reachedTargetBlockCount) {
           state.gameIsRunning = false;
           Timer.stop();
-          blockToAnimate?.remove();
 
           const timeSpent = Timer.getFormattedTimeSpent();
           UI.showModal(
@@ -358,10 +431,22 @@ const Game = {
       blockToAnimate.style.transform = `translateY(${CONFIG.GAME_OVER_FALL_DISTANCE}px)`;
       blockToAnimate.style.opacity = "0";
 
+      const targetBottom = Game.getTowerHeight();
+      const targetTop =
+        DOM.tower.clientHeight - targetBottom - state.dynamicBlockHeight;
+
+      if (blockToAnimate.dataset.type !== "trump") {
+        UI.showBonusText("-❤️", currLeft, targetTop, true);
+      }
+
       setTimeout(() => {
         blockToAnimate?.remove();
 
         if (blockToAnimate.dataset.type === "trump") {
+          state.score += 10;
+          UI.updateScore();
+          UI.showBonusText("+10", currLeft, targetTop, false);
+
           if (state.gameIsRunning) {
             state.isDropping = false;
             Game.spawnBlock();
@@ -401,7 +486,7 @@ const Game = {
       title = "Tiden är slut!";
     } else if (reason === "trump") {
       title = "<span>🍫</span>Game Over!<span>🍫</span>";
-      message = `<p class="modal-text">Djur tål inte choklad!</p>${statsHtml}`;
+      message = `<p>Djur tål inte choklad!</p>${statsHtml}`;
     }
 
     UI.showModal(title, message, type);

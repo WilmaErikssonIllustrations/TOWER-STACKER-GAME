@@ -231,7 +231,8 @@ main {
 .block {
   position: absolute;
   background-color: var(--color-block);
-  background-size: cover;
+  background-size: contain;
+  background-repeat: no-repeat;
   background-position: center;
   border: var(--border-width) solid var(--color-block-border);
   border-radius: var(--radius-sm);
@@ -239,12 +240,27 @@ main {
   will-change: top, left;
 }
 
+/* Vanligt snacks-block */
+.block[data-type="normal"] {
+  background-image: url("../assets/cat-food.png");
+}
+
+/* Chokladblock (farligt) */
+.block[data-type="trump"] {
+  background-image: url("../assets/chocolate.png");
+  background-color: rgba(255, 0, 0, 0.15);
+  border: 1.5px solid rgba(255, 0, 0, 0.4);
+  border-radius: var(--radius-sm);
+}
+
 #base-block {
-  width: 200px;
-  left: 100px;
   background-color: var(--color-primary);
   border-color: var(--color-primary-dark);
   box-shadow: var(--shadow-base);
+  background-image: url("../assets/pet-bowl.png");
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
 /* ==========================================
@@ -374,6 +390,33 @@ main {
 }
 
 /* ==========================================
+   POPUP/BONUSTEXTER
+   ========================================== */
+.bonus-popup {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-game);
+  font-weight: 800;
+  font-size: 24px;
+  pointer-events: none;
+  z-index: 100;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+  transition:
+    transform 1s ease-out,
+    opacity 0.5s ease-in 1s;
+}
+
+.bonus-popup.penalty {
+  color: #ef4444;
+}
+
+.bonus-popup.bonus {
+  color: #0b7210;
+}
+
+/* ==========================================
    RESPONSIVENESS (MEDIA QUERIES)
    ========================================== */
 @media (min-width: 600px) {
@@ -383,6 +426,7 @@ main {
   }
   #game-container {
     max-height: 700px;
+    max-width: 450px;
   }
 }
 
