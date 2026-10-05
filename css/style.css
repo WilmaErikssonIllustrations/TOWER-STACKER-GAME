@@ -7,28 +7,28 @@
   -webkit-locale: "sv";
 
   /* ==========================================
-     1. COLOR PALETTE (Ändra spelets färger här)
+     1. COLOR PALETTE 
      ========================================== */
-  --color-primary: #7c3aed; /* Huvudfärg (lila) */
-  --color-primary-hover: #8b5cf6; /* Ljusare lila vid hover */
-  --color-primary-dark: #6d28d9; /* Mörkare lila (aktiv/bas) */
-  --color-accent: #f59e0b; /* Accentfärg (t.ex. poäng-ikon) */
+  --color-primary: #7c3aed;
+  --color-primary-hover: #8b5cf6;
+  --color-primary-dark: #6d28d9;
+  --color-accent: #f59e0b;
 
-  --color-bg: #ddd; /* Bakgrund bakom spelet */
-  --color-container-bg: #ffffff; /* Vit bakgrund i kort/containrar */
-  --color-border: #cbd5e1; /* Standard kantlinje */
+  --color-bg: #ddd;
+  --color-container-bg: #ffffff;
+  --color-border: #cbd5e1;
 
-  --color-text: #0f172a; /* Huvudtext */
-  --color-text-muted: #64748b; /* Sekundär/avstämnd text */
+  --color-text: #0f172a;
+  --color-text-muted: #64748b;
 
-  --color-sum-bg: #f8fafc; /* Ljus bakgrund för header/stats */
-  --color-backdrop: rgba(15, 23, 42, 0.4); /* Svarttonad bakgrund vid modal */
+  --color-sum-bg: #f8fafc;
+  --color-backdrop: rgba(15, 23, 42, 0.4);
 
-  --color-block: #e8e8e8; /* Standardblock */
+  --color-block: #e8e8e8;
   --color-block-border: rgba(15, 23, 42, 0.4);
 
   /* ==========================================
-     2. SHADOWS (Design tokens för djup)
+     2. SHADOWS
      ========================================== */
   --shadow-container: inset 0 4px 16px rgba(15, 23, 42, 0.05);
   --shadow-block: inset 0 2px 4px rgba(15, 23, 42, 0.06);
@@ -218,6 +218,16 @@ main {
   overflow: hidden;
 }
 
+#win-line {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  border-top: 5px dashed #dbdada;
+  z-index: 5;
+  pointer-events: none;
+}
+
 .block {
   position: absolute;
   background-color: var(--color-block);
@@ -370,6 +380,9 @@ main {
   :root {
     --game-width: 80vw;
     --game-height: 85vh;
+  }
+  #game-container {
+    max-height: 700px;
   }
 }
 

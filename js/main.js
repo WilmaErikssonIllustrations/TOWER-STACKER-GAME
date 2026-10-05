@@ -8,13 +8,13 @@ const CONFIG = {
   SIZE_DECREMENT: 10,
   INITIAL_BLOCK_WIDTH: 100,
   INITIAL_BLOCK_SPEED: 6,
-  MAX_BLOCK_SPEED: 7,
-  SPEED_INCREMENT: 1,
-  TOP_MARGIN: 130,
+  MAX_BLOCK_SPEED: 9,
+  SPEED_INCREMENT: 2,
+  TOP_MARGIN: 95,
   GAME_OVER_FALL_DISTANCE: 200,
   CONTAINER_PADDING: 20,
   SPAWN_TOP_POSITION: "10px",
-  TRUMP_BLOCK_CHANCE: 0.3,
+  TRUMP_BLOCK_CHANCE: 0.2,
   INITIAL_LIVES: 3,
   GAME_TIME_LIMIT: 30,
 };
@@ -164,6 +164,11 @@ const Game = {
     state.currentBlock = null;
     UI.hideModal();
 
+    const winLine = document.createElement("div");
+    winLine.id = "win-line";
+    winLine.style.top = `${CONFIG.TOP_MARGIN}px`;
+    DOM.tower.appendChild(winLine);
+
     const gameWidth = DOM.tower.clientWidth;
     const initialBlockWidth = Math.min(
       CONFIG.INITIAL_BLOCK_WIDTH,
@@ -275,7 +280,7 @@ const Game = {
 
     const blockToAnimate = state.currentBlock;
 
-    if (overlapWidth > 0) {
+    if (overlapWidth > 5) {
       const targetBottom = Game.getTowerHeight();
       const fallDuration = 350;
       blockToAnimate.style.transition = `top ${fallDuration / 1000}s cubic-bezier(0.4, 0, 0.2, 1)`;
@@ -319,10 +324,17 @@ const Game = {
         UI.updateScore();
         state.blocks.push(blockToAnimate);
 
-        const maxHeight = DOM.tower.clientHeight - CONFIG.TOP_MARGIN;
-        const currentBlockTop = targetBottom + state.currentBlockSize;
+        // --- VINSTKONTROLL ---
+        // Vinstlinjens underkant mätt från toppen (TOP_MARGIN + 5px linjetjocklek):
+        const WIN_LINE_THICKNESS = 5;
+        const winLineBottomFromTop = CONFIG.TOP_MARGIN + WIN_LINE_THICKNESS;
 
-        if (currentBlockTop >= maxHeight) {
+        // Det placerade blockets överkant mätt från toppen av tower:
+        const blockTopFromTop =
+          DOM.tower.clientHeight - (targetBottom + state.currentBlockSize);
+
+        // Om blockets överkant når upp till eller passerar botten av win-line -> VINST!
+        if (blockTopFromTop <= winLineBottomFromTop) {
           state.gameIsRunning = false;
           Timer.stop();
           blockToAnimate?.remove();
