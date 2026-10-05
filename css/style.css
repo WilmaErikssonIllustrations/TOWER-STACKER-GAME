@@ -1,5 +1,10 @@
 /* ==========================================
    TABLE OF CONTENTS & EXTERNAL FONTS
+   1. COLOR PALETTE
+   2. SHADOWS
+   3. GRADIENTS
+   4. TYPOGRAPHY
+   5. LAYOUT, DIMENSIONS & SPACING
    ========================================== */
 @import url("https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Orbitron:wght@400;700;900&display=swap");
 
@@ -9,22 +14,27 @@
   /* ==========================================
      1. COLOR PALETTE 
      ========================================== */
-  --color-primary: #7c3aed;
-  --color-primary-hover: #8b5cf6;
-  --color-primary-dark: #6d28d9;
-  --color-accent: #f59e0b;
+  --color-primary: #7c3aed; /* Primary purple theme */
+  --color-primary-hover: #8b5cf6; /* Lighter purple for hover states */
+  --color-primary-dark: #6d28d9; /* Darker purple for active states/shadows */
+  --color-accent: #f59e0b; /* Accent color (gold/amber) */
 
-  --color-bg: #ddd;
-  --color-container-bg: #ffffff;
-  --color-border: #cbd5e1;
+  --color-bg: #ddd; /* Page background color */
+  --color-container-bg: #ffffff; /* Main container background */
+  --color-border: #cbd5e1; /* Border color */
 
-  --color-text: #0f172a;
-  --color-text-muted: #64748b;
+  --color-text: #0f172a; /* Dark body text color */
+  --color-text-muted: #64748b; /* Muted/secondary text color */
 
-  --color-sum-bg: #f8fafc;
-  --color-backdrop: rgba(15, 23, 42, 0.4);
+  --color-sum-bg: #f8fafc; /* Background for game header and field */
+  --color-backdrop: rgba(
+    15,
+    23,
+    42,
+    0.4
+  ); /* Backdrop overlay color for modal */
 
-  --color-block: #e8e8e8;
+  --color-block: #e8e8e8; /* Default block background */
   --color-block-border: rgba(15, 23, 42, 0.4);
 
   /* ==========================================
@@ -68,7 +78,8 @@
      ========================================== */
   --font-main:
     -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", sans-serif;
-  --font-game: "Orbitron", sans-serif;
+  --font-game:
+    "Orbitron", sans-serif; /* Futuristic font used for scores/timer */
 
   --font-size-xs: 0.7rem;
   --font-size-sm: clamp(0.85rem, 3vw, 0.95rem);
@@ -97,7 +108,7 @@
   --spacing-lg: 0.85rem;
   --spacing-container: clamp(1.5rem, 5vw, 2.25rem) clamp(1.25rem, 4vw, 2rem);
 
-  --padding-container-inner: 1rem; /* Används i containrar för enhetlighet */
+  --padding-container-inner: 1rem;
 }
 
 /* ==========================================
@@ -122,7 +133,7 @@ body {
   justify-content: center;
   align-items: center;
   height: 100vh;
-  overflow: hidden;
+  overflow: hidden; /* Prevent page scrolling */
   background-color: var(--color-bg);
   font-family: var(--font-main);
   color: var(--color-text);
@@ -156,6 +167,7 @@ main {
   overflow: hidden;
 }
 
+/* Header summary bar displaying Score, Lives, and Timer */
 #game-sum-container {
   display: flex;
   justify-content: space-evenly;
@@ -218,6 +230,7 @@ main {
   overflow: hidden;
 }
 
+/* Target line indicating victory height */
 #win-line {
   position: absolute;
   left: 0;
@@ -228,6 +241,7 @@ main {
   pointer-events: none;
 }
 
+/* Generic base styles for game blocks */
 .block {
   position: absolute;
   background-color: var(--color-block);
@@ -237,15 +251,15 @@ main {
   border: var(--border-width) solid var(--color-block-border);
   border-radius: var(--radius-sm);
   box-shadow: var(--shadow-block);
-  will-change: top, left;
+  will-change: top, left; /* Performance optimization for GPU acceleration */
 }
 
-/* Vanligt snacks-block */
+/* Standard snack block styling */
 .block[data-type="normal"] {
   background-image: url("../assets/cat-food.png");
 }
 
-/* Chokladblock (farligt) */
+/* Chocolate trap block styling */
 .block[data-type="trump"] {
   background-image: url("../assets/chocolate.png");
   background-color: rgba(255, 0, 0, 0.15);
@@ -253,6 +267,7 @@ main {
   border-radius: var(--radius-sm);
 }
 
+/* Base starting block (pet bowl) */
 #base-block {
   background-color: var(--color-primary);
   border-color: var(--color-primary-dark);
@@ -273,7 +288,7 @@ main {
   justify-content: center;
   align-items: center;
   background-color: var(--color-backdrop);
-  backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px); /* Blur effect on background layer */
   z-index: 1000;
   transition: opacity 0.3s ease;
 }
@@ -392,6 +407,7 @@ main {
 /* ==========================================
    POPUP/BONUSTEXTER
    ========================================== */
+/* Animated popup indicators for score bonuses or penalties (+100, -❤️️) */
 .bonus-popup {
   position: absolute;
   display: flex;
@@ -409,16 +425,17 @@ main {
 }
 
 .bonus-popup.penalty {
-  color: #ef4444;
+  color: #ef4444; /* Red color for life loss */
 }
 
 .bonus-popup.bonus {
-  color: #0b7210;
+  color: #0b7210; /* Green color for bonus score */
 }
 
 /* ==========================================
    RESPONSIVENESS (MEDIA QUERIES)
    ========================================== */
+/* Tablets and larger screens */
 @media (min-width: 600px) {
   :root {
     --game-width: 80vw;
@@ -430,6 +447,7 @@ main {
   }
 }
 
+/* Desktop screens */
 @media (min-width: 1024px) {
   :root {
     --game-width: 700px;
