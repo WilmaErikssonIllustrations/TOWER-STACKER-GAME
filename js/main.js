@@ -382,6 +382,8 @@ const Game = {
         if (isPerfect) {
           pointsEarned = 100;
           UI.showBonusText("+100", currLeft, targetTop - 20);
+        } else {
+          UI.showBonusText("+10", currLeft, targetTop - 20); // Visar +10 vid vanlig träff
         }
 
         state.score += pointsEarned;
