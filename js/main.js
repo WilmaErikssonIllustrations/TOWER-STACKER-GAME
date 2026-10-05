@@ -514,4 +514,21 @@ if (DOM.startBtn) {
   });
 }
 
+document.addEventListener("keydown", (e) => {
+  // Om spelet INTE körs (modalen/instruktionerna visas)
+  if (!state.gameIsRunning) {
+    if (e.code === "Enter" || e.code === "Space") {
+      e.preventDefault();
+      Game.start();
+    }
+    return;
+  }
+
+  // Om spelet KÖRS: släpp block med Spacebar eller Pil ned (ArrowDown)
+  if (e.code === "Space" || e.code === "ArrowDown") {
+    e.preventDefault(); // Förhindrar att sidan scrollar
+    Game.placeBlock();
+  }
+});
+
 UI.showInstructions();
