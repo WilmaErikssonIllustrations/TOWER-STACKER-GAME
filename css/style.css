@@ -262,8 +262,8 @@ main {
 /* Chocolate trap block styling */
 .block[data-type="trump"] {
   background-image: url("../assets/chocolate.png");
-  background-color: rgba(255, 0, 0, 0.15);
-  border: 1.5px solid rgba(255, 0, 0, 0.4);
+  background-color: rgba(255, 0, 0, 0.4);
+  border: 1.5px solid rgb(88, 29, 29);
   border-radius: var(--radius-sm);
 }
 
@@ -311,7 +311,7 @@ main {
   border: var(--border-width) solid var(--color-border);
   border-radius: var(--radius-xl);
   box-shadow: var(--shadow-modal);
-  gap: var(--spacing-lg);
+  gap: 1.5rem;
 }
 
 #modal-content h2 {
@@ -328,6 +328,50 @@ main {
   font-size: var(--font-size-sm);
   line-height: 1.5;
   color: var(--color-text-muted);
+}
+
+.instruction-legend {
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+  gap: clamp(0.75rem, 3vw, 1.5rem);
+  width: 100%;
+}
+
+.instruction-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  min-width: 100px;
+}
+
+.instruction-icon {
+  display: block;
+  width: 56px;
+  height: 56px;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  filter: drop-shadow(0 4px 8px rgba(15, 23, 42, 0.12));
+}
+
+.instruction-icon--avoid {
+  background-image: url("../assets/chocolate.png");
+}
+
+.instruction-icon--stack {
+  background-image: url("../assets/cat-food.png");
+}
+
+.instruction-label {
+  font-family: var(--font-game);
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  color: var(--color-text);
+  text-transform: lowercase;
 }
 
 /* ==========================================
@@ -452,4 +496,8 @@ main {
   :root {
     --game-width: 700px;
   }
+}
+
+.snack-tower-title {
+  font-size: var(--font-size-xl);
 }

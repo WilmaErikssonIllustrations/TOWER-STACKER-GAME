@@ -188,7 +188,7 @@ const UI = {
 
     if (DOM.startBtn) {
       DOM.startBtn.textContent =
-        type === "game-over" || type === "win" ? "Spela igen" : "Starta spelet";
+        type === "game-over" || type === "win" ? "Spela igen" : "Spela";
     }
 
     DOM.gameModal.classList.toggle("game-over", type === "game-over");
@@ -207,8 +207,19 @@ const UI = {
    */
   showInstructions() {
     UI.showModal(
-      "Snack Tower",
-      "<p>Tryck för att släppa snacks, bygg ett så högt snacks-torn som möjligt innan tiden tar slut!</p>",
+      `<span class="snack-tower-title">SNACK STACK</span>`,
+      `
+        <div class="instruction-legend" aria-label="Spelregler">
+          <div class="instruction-item">
+            <span class="instruction-icon instruction-icon--avoid" aria-hidden="true"></span>
+            <span class="instruction-label">undvik</span>
+          </div>
+          <div class="instruction-item">
+            <span class="instruction-icon instruction-icon--stack" aria-hidden="true"></span>
+            <span class="instruction-label">stapla</span>
+          </div>
+        </div>
+      `,
       "instructions",
     );
   },
@@ -596,7 +607,7 @@ const Game = {
       title = "Tiden är slut!";
     } else if (reason === "trump") {
       title = "<span>🍫</span>Game Over!<span>🍫</span>";
-      message = `<p>Djur tål inte choklad!</p>${statsHtml}`;
+      message = `${statsHtml}`;
     }
 
     UI.showModal(title, message, type);
